@@ -1,0 +1,11 @@
+{
+  "name": "منصة الحديث الشريف التفاعلية",
+  "short_name": "الحديث",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafaf9",
+  "theme_color": "#047857",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": []
+}

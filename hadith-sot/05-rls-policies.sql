@@ -2,7 +2,17 @@
 -- 05-rls-policies.sql
 -- منصة الحديث الشريف التفاعلية — سياسات Row Level Security (SQL فعلي جاهز للتنفيذ)
 -- Target: Supabase (PostgreSQL 15+)
--- Version: 1.0 | Last Updated: 2026-07-23 | Author: System Analyst AI
+-- Version: 1.1 | Last Updated: 2026-08-04 | Author: System Analyst AI + مراجعة تنفيذية
+--
+-- سجل التغيير v1.1 (مُثبت بـ15 اختبار اختراق حيّ — انظر review/02-database-critique.md):
+--   [DB-01 P0] لم تكن هناك أي سياسة UPDATE على recordings ⇒ المشرف لا يستطيع الاعتماد ✅
+--              ولا الإخفاء التلقائي يعمل ⇒ F008 و UC-013 و ALG-002 معطّلة بصمت. أُصلح.
+--   [DB-03 P0] profiles كان مقروءاً للزوار (qual=true, TO public) ⇒ تعداد كل الطلاب
+--              ومعرفة هوية المشرف بلا تسجيل دخول. حُصر بـ authenticated.
+--   [DB-04 P1] app_settings كان يكشف كل عتبات الإشراف للزوار. حُصرت العامة منها.
+--   [DB-05 P1] كل السياسات كانت TO public. أُضيف TO authenticated حيث يلزم (دفاع في العمق).
+--   [DB-09 P1] annotations خارج النطاق لكن بسياسات CRUD حيّة. جُمّدت الكتابة.
+--   [DB-10 P2] (SELECT is_admin()) كانت تُقيَّم لكل صف. غُلّفت بـ(SELECT ...) لتفعيل تخزين InitPlan.
 -- Source: Derived from SRS v1.0 §7 (Permissions) + §9 من SoT-0
 --
 -- المبادئ الحاكمة:
@@ -10,7 +20,8 @@
 --   2) SELECT على المحتوى المرجعي والتسجيلات الظاهرة: متاح للجميع (زائر وموثّق).
 --   3) INSERT: للموثقين فقط، ومقيّد بشروط العمل (موافقة، مفتاح رفع، ملكية).
 --   4) UPDATE/DELETE: للمالك أو المشرف فقط.
---   5) عدّادات التسجيلات: لا تُعدَّل مباشرة — عبر RPC SECURITY DEFINER فقط.
+--   5) عدّادات التسجيلات: لا تُعدَّل مباشرة — عبر مشغّلات SECURITY DEFINER (04 §7.3).
+--   7) [v1.1] كل سياسة غير عامة تحدد TO authenticated صراحةً — لا اعتماد على auth.uid() وحده.
 --   6) جداول المحتوى المرجعي: لا كتابة إلا بدور الخدمة (service_role) عبر الاستيراد.
 -- =============================================================================
 
@@ -62,12 +73,14 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 -- قراءة: الجميع يرى الاسم المعروض والدور فقط عبر الأعمدة العامة.
 -- ملاحظة: الواجهة تعرض display_name فقط؛ الهوية الحقيقية تُجلب للمشرف عبر
 -- دالة SECURITY DEFINER في لوحة التحكم (14-admin-panel-spec.md) وليس عبر هذا الجدول مباشرة.
-CREATE POLICY profiles_select_public ON profiles
-    FOR SELECT USING (true);
+-- [FIX DB-03 — P0] كانت TO public ⇒ زائر غير مسجّل يقرأ كل الملفات الشخصية
+-- (الأسماء + من هو المشرف + last_active_at)، وهو ما يناقض وعد «الزملاء فقط» في وثيقة الموافقة.
+CREATE POLICY profiles_select_authenticated ON profiles
+    FOR SELECT TO authenticated USING (true);
 
 -- تحديث: المستخدم يعدّل ملفه فقط، وممنوع يغيّر دوره بنفسه.
 CREATE POLICY profiles_update_own ON profiles
-    FOR UPDATE USING (auth.uid() = id)
+    FOR UPDATE TO authenticated USING (auth.uid() = id)
     WITH CHECK (
         auth.uid() = id
         AND role = (SELECT role FROM profiles WHERE id = auth.uid())  -- منع الترقية الذاتية
@@ -101,26 +114,71 @@ ALTER TABLE recordings ENABLE ROW LEVEL SECURITY;
 
 -- قراءة: التسجيلات الظاهرة للجميع؛ المخفية للمشرف أو لصاحبها فقط.
 CREATE POLICY recordings_select_visible ON recordings
-    FOR SELECT USING (
+    FOR SELECT TO authenticated USING (
         is_hidden = false
         OR auth.uid() = user_id
-        OR is_admin()
+        OR (SELECT is_admin())
     );
 
 -- إدراج: موثّق + موافقة صريحة + مفتاح الرفع العام مفعّل + لنفسه فقط.
 CREATE POLICY recordings_insert_student ON recordings
-    FOR INSERT WITH CHECK (
+    FOR INSERT TO authenticated WITH CHECK (
         auth.uid() = user_id
         AND has_upload_consent()
         AND get_setting_bool('upload_enabled', true) = true
     );
 
--- تحديث: ممنوع مباشرة من العميل (العدّادات والاعتماد والإخفاء عبر RPCs فقط).
--- استثناء وحيد: لا يوجد. أي تعديل يتم عبر SECURITY DEFINER functions.
+-- [FIX DB-01 — P0] الإصدار 1.0 قال «التحديث عبر RPCs فقط» لكن لم يُعرَّف أي RPC في أي
+-- ملف قابل للتنفيذ (كانت موصوفة نثراً في 08-api-contracts.md فقط). النتيجة المُثبتة تجريبياً:
+-- المشرف يُنفّذ UPDATE recordings SET is_verified=true ⇒ «UPDATE 0» بلا أي خطأ.
+-- أي أن F008 و UC-013 و ALG-002 معطّلة بصمت. الإصلاح: سياسة إدارية صريحة + الدوال فعلياً هنا.
+
+CREATE POLICY recordings_update_admin ON recordings
+    FOR UPDATE TO authenticated
+    USING ((SELECT is_admin()))
+    WITH CHECK ((SELECT is_admin()));
+
+-- اعتماد/إلغاء اعتماد تسجيل (UC-013 / F008)
+CREATE OR REPLACE FUNCTION verify_recording(p_recording_id UUID, p_verified BOOLEAN)
+RETURNS recordings AS $$
+DECLARE r recordings;
+BEGIN
+    IF NOT is_admin() THEN
+        RAISE EXCEPTION 'FORBIDDEN' USING ERRCODE = '42501';
+    END IF;
+    UPDATE recordings
+       SET is_verified = p_verified,
+           verified_by = CASE WHEN p_verified THEN auth.uid() ELSE NULL END,
+           updated_at  = now()
+     WHERE id = p_recording_id
+    RETURNING * INTO r;
+    IF r.id IS NULL THEN
+        RAISE EXCEPTION 'NOT_FOUND' USING ERRCODE = 'P0002';
+    END IF;
+    RETURN r;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- إخفاء/إظهار تسجيل يدوياً (UC-012) — الإخفاء التلقائي بـALG-002 يستدعيها أيضاً
+CREATE OR REPLACE FUNCTION set_recording_hidden(p_recording_id UUID, p_hidden BOOLEAN)
+RETURNS recordings AS $$
+DECLARE r recordings;
+BEGIN
+    IF NOT is_admin() THEN
+        RAISE EXCEPTION 'FORBIDDEN' USING ERRCODE = '42501';
+    END IF;
+    UPDATE recordings SET is_hidden = p_hidden, updated_at = now()
+     WHERE id = p_recording_id RETURNING * INTO r;
+    IF r.id IS NULL THEN
+        RAISE EXCEPTION 'NOT_FOUND' USING ERRCODE = 'P0002';
+    END IF;
+    RETURN r;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- حذف: المالك في أي وقت (UC-009)، أو المشرف مطلقاً (F008).
 CREATE POLICY recordings_delete_owner_or_admin ON recordings
-    FOR DELETE USING (auth.uid() = user_id OR is_admin());
+    FOR DELETE TO authenticated USING (auth.uid() = user_id OR (SELECT is_admin()));
 
 -- -----------------------------------------------------------------------------
 -- 4. likes
@@ -135,10 +193,10 @@ CREATE POLICY likes_select_all ON likes
 -- ملاحظة: التدفق المعتمد هو RPC toggle_like (ذرّي مع العدّاد)؛ هذه السياسات
 -- شبكة أمان فقط ولا تعفي من استخدام الـ RPC.
 CREATE POLICY likes_insert_own ON likes
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY likes_delete_own ON likes
-    FOR DELETE USING (auth.uid() = user_id);
+    FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- -----------------------------------------------------------------------------
 -- 5. favorite_recordings — خاص بحت (ALG-006)
@@ -147,13 +205,13 @@ ALTER TABLE favorite_recordings ENABLE ROW LEVEL SECURITY;
 
 -- كل مستخدم يرى ويدير نجومه الخاصة فقط — لا قراءة عامة.
 CREATE POLICY favorites_select_own ON favorite_recordings
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
 CREATE POLICY favorites_insert_own ON favorite_recordings
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY favorites_delete_own ON favorite_recordings
-    FOR DELETE USING (auth.uid() = user_id);
+    FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- -----------------------------------------------------------------------------
 -- 6. recording_listens
@@ -162,11 +220,11 @@ ALTER TABLE recording_listens ENABLE ROW LEVEL SECURITY;
 
 -- قراءة: المستخدم يرى سجلات استماعه (لمعرفة ما احتُسب له)؛ المشرف يرى الكل.
 CREATE POLICY listens_select_own_or_admin ON recording_listens
-    FOR SELECT USING (auth.uid() = user_id OR is_admin());
+    FOR SELECT TO authenticated USING (auth.uid() = user_id OR (SELECT is_admin()));
 
 -- إدراج: المستخدم لنفسه فقط (ويُفضَّل عبر RPC register_listen للذرّية مع العدّاد).
 CREATE POLICY listens_insert_own ON recording_listens
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 -- لا UPDATE/DELETE.
 
@@ -177,15 +235,15 @@ ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 
 -- قراءة: المشرف يرى الكل؛ المبلِّغ يرى بلاغاته فقط (لمتابعة حالتها).
 CREATE POLICY reports_select_admin_or_reporter ON reports
-    FOR SELECT USING (is_admin() OR auth.uid() = reporter_id);
+    FOR SELECT TO authenticated USING ((SELECT is_admin()) OR auth.uid() = reporter_id);
 
 -- إدراج: موثّق يبلّغ بنفسه.
 CREATE POLICY reports_insert_authenticated ON reports
-    FOR INSERT WITH CHECK (auth.uid() = reporter_id);
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = reporter_id);
 
 -- تحديث (المعالجة): المشرف فقط.
 CREATE POLICY reports_update_admin ON reports
-    FOR UPDATE USING (is_admin()) WITH CHECK (is_admin());
+    FOR UPDATE TO authenticated USING ((SELECT is_admin())) WITH CHECK ((SELECT is_admin()));
 
 -- -----------------------------------------------------------------------------
 -- 8. content_reports (بلاغات المحتوى)
@@ -193,13 +251,13 @@ CREATE POLICY reports_update_admin ON reports
 ALTER TABLE content_reports ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY content_reports_select_admin_or_reporter ON content_reports
-    FOR SELECT USING (is_admin() OR auth.uid() = reporter_id);
+    FOR SELECT TO authenticated USING ((SELECT is_admin()) OR auth.uid() = reporter_id);
 
 CREATE POLICY content_reports_insert_authenticated ON content_reports
-    FOR INSERT WITH CHECK (auth.uid() = reporter_id);
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = reporter_id);
 
 CREATE POLICY content_reports_update_admin ON content_reports
-    FOR UPDATE USING (is_admin()) WITH CHECK (is_admin());
+    FOR UPDATE TO authenticated USING ((SELECT is_admin())) WITH CHECK ((SELECT is_admin()));
 
 -- -----------------------------------------------------------------------------
 -- 9. app_settings
@@ -207,12 +265,17 @@ CREATE POLICY content_reports_update_admin ON content_reports
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 
 -- قراءة: الجميع (الواجهة تحتاج upload_enabled وحدود الشارة… إلخ).
-CREATE POLICY settings_select_all ON app_settings
-    FOR SELECT USING (true);
+-- [FIX DB-04 — P1] كانت مقروءة للجميع فتكشف كل عتبات الإشراف (report_hide_min، النِسَب،
+-- حد الرفع) ⇒ يعرف المهاجم الرقم الدقيق اللازم لإخفاء تسجيل خصمه. الزائر يرى المفاتيح العامة فقط.
+CREATE POLICY settings_select_public_keys ON app_settings
+    FOR SELECT TO anon USING (key IN ('upload_enabled'));
+
+CREATE POLICY settings_select_authenticated ON app_settings
+    FOR SELECT TO authenticated USING (true);
 
 -- تعديل: المشرف فقط (UC-013) — يُفضَّل عبر RPC admin_update_setting لتسجيل updated_by.
 CREATE POLICY settings_update_admin ON app_settings
-    FOR UPDATE USING (is_admin()) WITH CHECK (is_admin());
+    FOR UPDATE TO authenticated USING ((SELECT is_admin())) WITH CHECK ((SELECT is_admin()));
 
 -- لا INSERT/DELETE: المفاتيح ثابتة المعروفة من البذور.
 
@@ -223,22 +286,21 @@ ALTER TABLE annotations ENABLE ROW LEVEL SECURITY;
 
 -- قراءة: المعتمدة فقط للجميع؛ غير المعتمدة للمالك والمشرف.
 CREATE POLICY annotations_select_policy ON annotations
-    FOR SELECT USING (
+    FOR SELECT TO authenticated USING (
         status = 'approved'
         OR auth.uid() = user_id
-        OR is_admin()
+        OR (SELECT is_admin())
     );
 
--- إدراج: موثّق لنفسه (يبقى pending حتى اعتماد المشرف).
-CREATE POLICY annotations_insert_own ON annotations
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- تحديث/حذف: المالك أو المشرف.
-CREATE POLICY annotations_update_owner_or_admin ON annotations
-    FOR UPDATE USING (auth.uid() = user_id OR is_admin());
-
-CREATE POLICY annotations_delete_owner_or_admin ON annotations
-    FOR DELETE USING (auth.uid() = user_id OR is_admin());
+-- [FIX DB-09 — P1] annotations خارج نطاق v1 صراحةً (SRS §1.2 «الواجهة مؤجلة») لكن الإصدار 1.0
+-- منحها 4 سياسات CRUD حيّة ⇒ سطح هجوم مفتوح لميزة غير مبنية وغير مُختبرة ولا واجهة لها.
+-- الكتابة مجمّدة حتى إطلاق الميزة؛ أعِد تفعيل الكتل الثلاث أدناه عندها.
+-- CREATE POLICY annotations_insert_own ON annotations
+--     FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+-- CREATE POLICY annotations_update_owner_or_admin ON annotations
+--     FOR UPDATE TO authenticated USING (auth.uid() = user_id OR (SELECT is_admin()));
+-- CREATE POLICY annotations_delete_owner_or_admin ON annotations
+--     FOR DELETE TO authenticated USING (auth.uid() = user_id OR (SELECT is_admin()));
 
 COMMIT;
 
