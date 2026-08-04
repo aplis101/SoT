@@ -11,7 +11,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   // حارس المصادقة (UC-001) — كل الصفحات محمية عدا /login
+  // (رابط العرض ?as= يُعالَج في StoreProvider بعد تحميل الحالة المحفوظة)
   useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("as=")) return;
     if (!state.sessionUserId && pathname !== "/login") router.replace("/login");
     if (state.sessionUserId && pathname === "/login") router.replace("/");
   }, [state.sessionUserId, pathname, router]);

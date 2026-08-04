@@ -202,6 +202,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) dispatch({ type: "LOAD", payload: JSON.parse(raw) });
     } catch { /* تجاهل */ }
+    // رابط عرض مباشر ?as=student | ?as=admin — يُطبَّق بعد تحميل الحالة المحفوظة
+    // حتى لا تُلغيه. مفيد للعرض والمشاركة؛ يُحذف عند ربط Google OAuth الحقيقي.
+    try {
+      const as = new URLSearchParams(window.location.search).get("as");
+      if (as === "student" || as === "admin") {
+        dispatch({ type: "LOGIN", asAdmin: as === "admin" });
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    } catch { /* تجاهل */ }
   }, []);
 
   useEffect(() => {
