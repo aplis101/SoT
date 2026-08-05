@@ -83,38 +83,63 @@ function mapGrade(grades, collectionKey) {
  * العلامات: «قال: سمعت رسول الله ... يقول:» أو «عن النبي ﷺ قال:» ونحوها.
  */
 function splitIsnadMatn(text) {
-  const clean = (s) =>
-    s.replace(/[‎‏]/g, "")      // محارف اتجاه غير مرئية
-     .replace(/^[\s"“«»‏.،:]+|[\s"“«»‏]+$/g, "")
-     .trim();
+  const clean = (s) => s.replace(/[\u200e\u200f]/g, "").replace(/^[\s"\u201c\u00ab\u00bb.\u060c:\u061b]+|[\s"\u201d\u00ab\u00bb]+$/g, "").trim();
 
-  // الطريقة 1 (الأدق): المتن محصور بين أول وآخر علامة اقتباس في النص.
-  // نصوص البخاري ومسلم تضع كلام النبي ﷺ بين ‏"‏ … ‏"‏ بشكل منتظم.
-  const first = text.search(/["“«]/);
-  const last = text.search(/["”»](?![\s\S]*["”»])/);
+  // (1) الأدق: المتن محصور بين أول وآخر علامة اقتباس (البخاري ومسلم منتظمان بها)
+  const first = text.search(/["\u201c\u00ab]/);
+  const last = text.search(/["\u201d\u00bb](?![\s\S]*["\u201d\u00bb])/);
   if (first > 15 && last > first + 15) {
     const isnad = clean(text.slice(0, first));
     const matn = clean(text.slice(first, last + 1));
     if (isnad.length > 10 && matn.length > 10) return { isnad, matn };
   }
 
-  // الطريقة 2: علامات لفظية تسبق كلام النبي ﷺ مباشرةً.
+  // (2) علامات لفظية تسبق كلام النبي ﷺ. نأخذ **آخر** تطابق لا أوّله،
+  //     لأن الإسناد قد يحوي «قال» متكررة بين الرواة قبل المتن الفعلي.
   const markers = [
-    /(?:صلى الله عليه وسلم|صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ|ﷺ)\s*(?:قَالَ|قال|يَقُولُ|يقول)\s*:?\s*/,
-    /(?:قَالَ|قال)\s+(?:رَسُولُ|رسول)\s+(?:اللَّهِ|الله)[^\n]{0,45}?(?:وسلم|وَسَلَّمَ|ﷺ)\s*:?\s*/,
-    /(?:عَنِ|عن)\s+(?:النَّبِيِّ|النبي)[^\n]{0,60}?(?:قَالَ|قال)\s*:?\s*/,
+    /(?:صلى الله عليه وسلم|صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ|صلى الله عليه و سلم|\u0635\u0644\u0639\u0645|\ufdfa)\s*(?:أَنَّهُ\s+)?(?:قَالَ|قال|يَقُولُ|يقول)\s*:?\s*/g,
+    /(?:قَالَ|قال)\s+(?:رَسُولُ|رسول)\s+(?:اللَّهِ|الله)[^\n]{0,50}?(?:وسلم|وَسَلَّمَ|\ufdfa)\s*:?\s*/g,
+    /(?:سَمِعْتُ|سمعت)\s+(?:رَسُولَ|رسول)\s+(?:اللَّهِ|الله)[^\n]{0,50}?(?:يَقُولُ|يقول)\s*:?\s*/g,
+    /(?:أَنَّ|أن)\s+(?:رَسُولَ|رسول)\s+(?:اللَّهِ|الله)[^\n]{0,50}?(?:قَالَ|قال)\s*:?\s*/g,
+    /(?:عَنِ|عن)\s+(?:النَّبِيِّ|النبي)[^\n]{0,60}?(?:قَالَ|قال)\s*:?\s*/g,
+    /(?:عَنْ|عن)\s+(?:رَسُولِ|رسول)\s+(?:اللَّهِ|الله)[^\n]{0,50}?(?:قَالَ|قال)\s*:?\s*/g,
   ];
+  let best = null;
   for (const re of markers) {
-    const m = text.match(re);
-    if (m && m.index > 15) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
       const cut = m.index + m[0].length;
-      const isnad = clean(text.slice(0, cut));
-      const matn = clean(text.slice(cut));
-      if (isnad.length > 10 && matn.length > 10) return { isnad, matn };
+      // نفضّل أبعد قطع يترك متناً معقولاً — الإسناد يسبق المتن دائماً
+      if (m.index > 15 && text.length - cut > 15 && (!best || cut > best)) best = cut;
+      if (m.index === re.lastIndex) re.lastIndex++;
     }
   }
+  if (best) {
+    const isnad = clean(text.slice(0, best));
+    const matn = clean(text.slice(best));
+    if (isnad.length > 10 && matn.length > 10) return { isnad, matn };
+  }
 
-  // تعذّر الفصل — نُبقي النص كاملاً في المتن ونترك الإسناد فارغاً للمراجعة.
+  // (3) الروايات غير المقتبسة (فِعل لا قول) — نحو 39% من المجموعات السننية.
+  //     الإسناد سلسلة رواة مفصولة بفواصل تنتهي بـ«قال/قالت/أنّ»، ثم يبدأ المتن.
+  //     نأخذ آخر رابط إسنادي يقع في النصف الأول من النص ويترك متناً معقولاً.
+  const link = /(?:،\s*|\s)(?:قَالَ|قال|قَالَتْ|قالت|قَالُوا|قالوا|يَقُولُ|يقول|أَنَّهُ|أنه)\s+/g;
+  let m3, cut3 = null;
+  const halfway = Math.floor(text.length * 0.6);
+  while ((m3 = link.exec(text)) !== null) {
+    const c = m3.index + m3[0].length;
+    // يجب أن يسبقه اسم راوٍ (سلسلة إسناد) وأن يبقى متن كافٍ بعده
+    const before = text.slice(0, m3.index);
+    const hasChain = /(?:حَدَّثَنَا|حدثنا|أَخْبَرَنَا|أخبرنا|عَنْ|عن|سَمِعْتُ|سمعت)/.test(before);
+    if (hasChain && m3.index > 25 && m3.index < halfway && text.length - c > 40) cut3 = c;
+  }
+  if (cut3) {
+    const isnad = clean(text.slice(0, cut3));
+    const matn = clean(text.slice(cut3));
+    if (isnad.length > 20 && matn.length > 20) return { isnad, matn };
+  }
+
   return { isnad: "", matn: clean(text) };
 }
 
