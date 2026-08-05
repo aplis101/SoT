@@ -78,7 +78,7 @@ export default function AdminReports() {
                           {r.status === "open" ? "مفتوح" : r.status === "resolved" ? "محلول" : "مرفوض"}
                         </span>
                       </div>
-                      {r.note && <p className="mt-1 text-stone-600">{r.note}</p>}
+                      {r.details && <p className="mt-1 text-stone-600">{r.details}</p>}
                       {r.status === "open" && (
                         <div className="mt-2 flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => { dispatch({ type: "RESOLVE_REPORT", reportId: r.id, status: "resolved" }); dispatch({ type: "TOAST", text: "عُلّم البلاغ كمحلول." }); }}>معالجة</Button>

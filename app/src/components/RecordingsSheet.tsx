@@ -23,7 +23,7 @@ export default function RecordingsSheet({
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [reportFor, setReportFor] = useState<RecordingView | null>(null);
   const [reason, setReason] = useState<ReportReason>("incorrect_recitation");
-  const [note, setNote] = useState("");
+  const [details, setNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<RecordingView | null>(null);
 
   const shown = list
@@ -40,7 +40,7 @@ export default function RecordingsSheet({
     if (already) { dispatch({ type: "TOAST", text: "سبق أن أبلغت عن هذا التسجيل.", kind: "err" }); setReportFor(null); return; }
     dispatch({
       type: "SUBMIT_REPORT",
-      report: { id: `rep-${Date.now()}`, recording_id: reportFor.id, reporter_id: me.id, reason, note: note.trim() || null, status: "open", created_at: new Date().toISOString() },
+      report: { id: `rep-${Date.now()}`, recording_id: reportFor.id, reporter_id: me.id, reason, details: details.trim() || null, status: "open", created_at: new Date().toISOString() },
     });
     dispatch({ type: "TOAST", text: "تم إرسال البلاغ إلى المشرف." });
     setReportFor(null); setNote(""); setReason("incorrect_recitation");
@@ -128,7 +128,7 @@ export default function RecordingsSheet({
           </fieldset>
           <label className="block space-y-1.5">
             <span className="text-sm font-medium text-stone-700">ملاحظة (اختياري)</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={300}
+            <textarea value={details} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={300}
               className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" placeholder="وضّح الخطأ إن أمكن…" />
           </label>
           <div className="flex gap-2">

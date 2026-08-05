@@ -63,9 +63,9 @@ type Action =
   | { type: "LOAD"; payload: Partial<AppState> }
   | { type: "HYDRATE_CONTENT"; payload: Partial<AppState> }
   | { type: "UPSERT_WORD"; word: WordDefinition }
-  | { type: "DELETE_WORD"; id: string }
+  | { type: "DELETE_WORD"; id: number }
   | { type: "UPSERT_TAKHRIJ"; item: TakhrijReference }
-  | { type: "DELETE_TAKHRIJ"; id: string }
+  | { type: "DELETE_TAKHRIJ"; id: number }
   | { type: "SET_EXPLANATION"; hadithId: string; text: string | null }
   | { type: "RENAME_BOOK"; bookId: number; nameAr: string }
   | { type: "LOGIN"; asAdmin: boolean }
@@ -127,7 +127,7 @@ function reducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         hadiths: state.hadiths.map((h) =>
-          h.id === action.hadithId ? { ...h, explanation_ar: action.text } : h
+          h.id === action.hadithId ? { ...h, explanation: action.text } : h
         ),
       };
     case "RENAME_BOOK":

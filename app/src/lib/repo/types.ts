@@ -67,10 +67,10 @@ export interface Repo {
   updateSetting(key: keyof AppSettings, value: number | boolean): Promise<void>;
 
   // ---- إدخال المحتوى العلمي (المشرف) ----
-  upsertWordDefinition(w: Omit<WordDefinition, "id"> & { id?: string }): Promise<WordDefinition>;
-  deleteWordDefinition(id: string): Promise<void>;
-  upsertTakhrij(t: Omit<TakhrijReference, "id"> & { id?: string }): Promise<TakhrijReference>;
-  deleteTakhrij(id: string): Promise<void>;
+  upsertWordDefinition(w: Omit<WordDefinition, "id"> & { id?: number }): Promise<WordDefinition>;
+  deleteWordDefinition(id: number): Promise<void>;
+  upsertTakhrij(t: Omit<TakhrijReference, "id"> & { id?: number }): Promise<TakhrijReference>;
+  deleteTakhrij(id: number): Promise<void>;
   updateHadithExplanation(hadithId: string, explanation: string | null): Promise<void>;
   renameBook(bookId: number, nameAr: string): Promise<void>;
 

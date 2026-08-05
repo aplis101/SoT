@@ -125,8 +125,8 @@ export default function HadithPage({ params }: { params: Promise<{ hadithId: str
               {words.map((w) => (
                 <div key={w.id} className="rounded-xl bg-stone-50 p-3">
                   <dt className="font-hadith text-lg text-primary">{w.word}</dt>
-                  <dd className="mt-1 text-[14px] text-stone-700">{w.meaning_ar}</dd>
-                  {w.meaning_id && <dd className="latin mt-1 text-[13px] text-stone-500">{w.meaning_id}</dd>}
+                  <dd className="mt-1 text-[14px] text-stone-700">{w.definition_ar}</dd>
+                  {w.definition_id && <dd className="latin mt-1 text-[13px] text-stone-500">{w.definition_id}</dd>}
                 </div>
               ))}
             </dl>
@@ -136,15 +136,15 @@ export default function HadithPage({ params }: { params: Promise<{ hadithId: str
             <ul className="space-y-2">
               {takhrij.map((t) => (
                 <li key={t.id} className="flex gap-2 rounded-xl bg-stone-50 p-3 text-[14px]">
-                  <span className="font-semibold text-stone-800">{t.source_name}:</span>
-                  <span className="text-stone-600">{t.reference_text}</span>
+                  <span className="font-semibold text-stone-800">{t.source_book}:</span>
+                  <span className="text-stone-600">{t.reference_number}</span>
                 </li>
               ))}
             </ul>
           ) : <p className="text-stone-400">لا يوجد تخريج مسجّل.</p>)}
 
-          {tab === "sharh" && (hadith.explanation_ar
-            ? <p className="leading-loose">{hadith.explanation_ar}</p>
+          {tab === "sharh" && (hadith.explanation
+            ? <p className="leading-loose">{hadith.explanation}</p>
             : <p className="text-stone-400">لا يوجد شرح متاح بعد.</p>)}
         </div>
       </Card>

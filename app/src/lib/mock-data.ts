@@ -64,7 +64,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى دُنْيَا يُصِيبُهَا أَوْ إِلَى امْرَأَةٍ يَنْكِحُهَا فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ",
     translation_id: "Sesungguhnya setiap amalan tergantung pada niatnya, dan setiap orang akan mendapatkan apa yang ia niatkan. Barangsiapa yang hijrahnya karena dunia yang ingin ia raih atau karena wanita yang ingin ia nikahi, maka hijrahnya sesuai dengan apa yang ia niatkan.",
     grade: "sahih",
-    explanation_ar: "هذا الحديث أصلٌ عظيم من أصول الدين، وقد قال العلماء إنه ثلث العلم. ومعناه أن صحة العمل وفساده وقبوله وردَّه بحسب النية الباعثة عليه. فالعمل الواحد قد يكون عبادةً وقد يكون عادة، والفارق بينهما النية.",
+    explanation: "هذا الحديث أصلٌ عظيم من أصول الدين، وقد قال العلماء إنه ثلث العلم. ومعناه أن صحة العمل وفساده وقبوله وردَّه بحسب النية الباعثة عليه. فالعمل الواحد قد يكون عبادةً وقد يكون عادة، والفارق بينهما النية.",
     length_class: "long", source_api: "mock",
   },
   {
@@ -73,7 +73,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "الإِيمَانُ بِضْعٌ وَسِتُّونَ شُعْبَةً، وَالحَيَاءُ شُعْبَةٌ مِنَ الإِيمَانِ",
     translation_id: "Iman itu ada enam puluh sekian cabang, dan malu adalah salah satu cabang dari iman.",
     grade: "sahih",
-    explanation_ar: "دلَّ الحديث على أن الإيمان يزيد وينقص، وأنه شُعَبٌ متعددة أعلاها التوحيد وأدناها إماطة الأذى عن الطريق، وأن الحياء خُلُقٌ يبعث على فعل الجميل وترك القبيح.",
+    explanation: "دلَّ الحديث على أن الإيمان يزيد وينقص، وأنه شُعَبٌ متعددة أعلاها التوحيد وأدناها إماطة الأذى عن الطريق، وأن الحياء خُلُقٌ يبعث على فعل الجميل وترك القبيح.",
     length_class: "short", source_api: "mock",
   },
   {
@@ -82,7 +82,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "المُسْلِمُ مَنْ سَلِمَ المُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ، وَالمُهَاجِرُ مَنْ هَجَرَ مَا نَهَى اللَّهُ عَنْهُ",
     translation_id: "Seorang muslim adalah orang yang kaum muslimin selamat dari lisan dan tangannya, dan seorang muhajir adalah orang yang meninggalkan apa yang dilarang Allah.",
     grade: "sahih",
-    explanation_ar: "بيَّن النبي صلى الله عليه وسلم أن كمال الإسلام في كفِّ الأذى عن المسلمين قولاً وفعلاً، وأن حقيقة الهجرة هجرُ المعاصي لا مجردُ الانتقال من بلد إلى بلد.",
+    explanation: "بيَّن النبي صلى الله عليه وسلم أن كمال الإسلام في كفِّ الأذى عن المسلمين قولاً وفعلاً، وأن حقيقة الهجرة هجرُ المعاصي لا مجردُ الانتقال من بلد إلى بلد.",
     length_class: "short", source_api: "mock",
   },
   {
@@ -91,7 +91,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ، وَإِنَّمَا أَنَا قَاسِمٌ وَاللَّهُ يُعْطِي",
     translation_id: "Barangsiapa yang Allah kehendaki kebaikan padanya, niscaya Allah pahamkan ia dalam urusan agama. Sesungguhnya aku hanyalah pembagi, dan Allah-lah yang memberi.",
     grade: "sahih",
-    explanation_ar: "فيه فضل الفقه في الدين وأنه علامة إرادة الله بالعبد الخير، وأن النبي صلى الله عليه وسلم مبلِّغٌ عن ربه والتوفيق بيد الله وحده.",
+    explanation: "فيه فضل الفقه في الدين وأنه علامة إرادة الله بالعبد الخير، وأن النبي صلى الله عليه وسلم مبلِّغٌ عن ربه والتوفيق بيد الله وحده.",
     length_class: "short", source_api: "mock",
   },
   {
@@ -100,7 +100,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "إِنَّ الرِّفْقَ لَا يَكُونُ فِي شَيْءٍ إِلَّا زَانَهُ، وَلَا يُنْزَعُ مِنْ شَيْءٍ إِلَّا شَانَهُ",
     translation_id: "Sesungguhnya kelembutan tidaklah ada pada sesuatu melainkan ia akan menghiasinya, dan tidaklah dicabut dari sesuatu melainkan ia akan memperburuknya.",
     grade: "sahih",
-    explanation_ar: "حثٌّ على الرفق في الأمور كلها، وبيان أنه سببٌ للزينة والجمال في القول والعمل، وأن العنف سببٌ للشين والقبح.",
+    explanation: "حثٌّ على الرفق في الأمور كلها، وبيان أنه سببٌ للزينة والجمال في القول والعمل، وأن العنف سببٌ للشين والقبح.",
     length_class: "short", source_api: "mock",
   },
   {
@@ -109,7 +109,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "أَنْ تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ، فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ",
     translation_id: "Engkau beribadah kepada Allah seakan-akan engkau melihat-Nya. Jika engkau tidak melihat-Nya, maka sesungguhnya Dia melihatmu.",
     grade: "sahih",
-    explanation_ar: "هذا تعريف الإحسان، وهو أعلى مراتب الدين. ومعناه استحضار مراقبة الله في كل عمل، فمن استشعر ذلك أخلص وأتقن.",
+    explanation: "هذا تعريف الإحسان، وهو أعلى مراتب الدين. ومعناه استحضار مراقبة الله في كل عمل، فمن استشعر ذلك أخلص وأتقن.",
     length_class: "short", source_api: "mock",
   },
   {
@@ -118,7 +118,7 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
     translation_id: "Sesungguhnya setiap amalan tergantung pada niatnya, dan setiap orang akan mendapatkan apa yang ia niatkan.",
     grade: "sahih",
-    explanation_ar: "افتتح النووي رحمه الله أربعينه بهذا الحديث تنبيهاً على أن كل عملٍ لا يُراد به وجه الله فهو باطل لا ثمرة له في الدنيا ولا في الآخرة.",
+    explanation: "افتتح النووي رحمه الله أربعينه بهذا الحديث تنبيهاً على أن كل عملٍ لا يُراد به وجه الله فهو باطل لا ثمرة له في الدنيا ولا في الآخرة.",
     length_class: "short", source_api: "mock",
   },
   {
@@ -127,32 +127,32 @@ export const MOCK_HADITHS: Hadith[] = [
     matn_ar: "لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
     translation_id: "Tidak sempurna iman salah seorang di antara kalian hingga ia mencintai untuk saudaranya apa yang ia cintai untuk dirinya sendiri.",
     grade: "sahih",
-    explanation_ar: "نفيُ الإيمان هنا نفيٌ للكمال لا لأصله. والمراد أن يحب لأخيه المسلم من الخير مثل ما يحب لنفسه، وهو أصلٌ في سلامة الصدر.",
+    explanation: "نفيُ الإيمان هنا نفيٌ للكمال لا لأصله. والمراد أن يحب لأخيه المسلم من الخير مثل ما يحب لنفسه، وهو أصلٌ في سلامة الصدر.",
     length_class: "short", source_api: "mock",
   },
 ];
 
 export const MOCK_WORD_DEFINITIONS: WordDefinition[] = [
-  { id: "w-1", hadith_id: "h-001", word: "النِّيَّاتِ", meaning_ar: "جمع نيّة، وهي القصد المقترن بالفعل. ومحلها القلب.", meaning_id: "Niat: maksud yang menyertai perbuatan, tempatnya di hati." },
-  { id: "w-2", hadith_id: "h-001", word: "هِجْرَتُهُ", meaning_ar: "الانتقال من دار الكفر إلى دار الإسلام، وتُطلق على ترك المعاصي.", meaning_id: "Hijrah: berpindah dari negeri kufur ke negeri Islam." },
-  { id: "w-3", hadith_id: "h-002", word: "بِضْعٌ", meaning_ar: "العدد من الثلاثة إلى التسعة.", meaning_id: "Bidh'un: bilangan antara tiga sampai sembilan." },
-  { id: "w-4", hadith_id: "h-002", word: "شُعْبَةً", meaning_ar: "خصلة وقطعة من الشيء؛ أي جزء من أجزاء الإيمان.", meaning_id: "Cabang atau bagian dari sesuatu." },
-  { id: "w-5", hadith_id: "h-003", word: "المُهَاجِرُ", meaning_ar: "التارك لبلده، والمراد هنا التارك للمنهيات.", meaning_id: "Muhajir: orang yang meninggalkan (larangan Allah)." },
-  { id: "w-6", hadith_id: "h-004", word: "يُفَقِّهْهُ", meaning_ar: "يجعله فقيهاً عالماً بأحكام الدين وأسرارها.", meaning_id: "Menjadikannya faqih/paham dalam agama." },
-  { id: "w-7", hadith_id: "h-005", word: "زَانَهُ", meaning_ar: "زيَّنه وحسَّنه.", meaning_id: "Menghiasi dan memperindahnya." },
-  { id: "w-8", hadith_id: "h-005", word: "شَانَهُ", meaning_ar: "عابه وقبَّحه.", meaning_id: "Memperburuk dan mencacatinya." },
+  { id: 1, hadith_id: "h-001", word: "النِّيَّاتِ", definition_ar: "جمع نيّة، وهي القصد المقترن بالفعل. ومحلها القلب.", definition_id: "Niat: maksud yang menyertai perbuatan, tempatnya di hati." },
+  { id: 2, hadith_id: "h-001", word: "هِجْرَتُهُ", definition_ar: "الانتقال من دار الكفر إلى دار الإسلام، وتُطلق على ترك المعاصي.", definition_id: "Hijrah: berpindah dari negeri kufur ke negeri Islam." },
+  { id: 3, hadith_id: "h-002", word: "بِضْعٌ", definition_ar: "العدد من الثلاثة إلى التسعة.", definition_id: "Bidh'un: bilangan antara tiga sampai sembilan." },
+  { id: 4, hadith_id: "h-002", word: "شُعْبَةً", definition_ar: "خصلة وقطعة من الشيء؛ أي جزء من أجزاء الإيمان.", definition_id: "Cabang atau bagian dari sesuatu." },
+  { id: 5, hadith_id: "h-003", word: "المُهَاجِرُ", definition_ar: "التارك لبلده، والمراد هنا التارك للمنهيات.", definition_id: "Muhajir: orang yang meninggalkan (larangan Allah)." },
+  { id: 6, hadith_id: "h-004", word: "يُفَقِّهْهُ", definition_ar: "يجعله فقيهاً عالماً بأحكام الدين وأسرارها.", definition_id: "Menjadikannya faqih/paham dalam agama." },
+  { id: 7, hadith_id: "h-005", word: "زَانَهُ", definition_ar: "زيَّنه وحسَّنه.", definition_id: "Menghiasi dan memperindahnya." },
+  { id: 8, hadith_id: "h-005", word: "شَانَهُ", definition_ar: "عابه وقبَّحه.", definition_id: "Memperburuk dan mencacatinya." },
 ];
 
 export const MOCK_TAKHRIJ: TakhrijReference[] = [
-  { id: "t-1", hadith_id: "h-001", source_name: "صحيح البخاري", reference_text: "كتاب بدء الوحي، باب كيف كان بدء الوحي، رقم 1" },
-  { id: "t-2", hadith_id: "h-001", source_name: "صحيح مسلم", reference_text: "كتاب الإمارة، باب قوله إنما الأعمال بالنية، رقم 1907" },
-  { id: "t-3", hadith_id: "h-002", source_name: "صحيح البخاري", reference_text: "كتاب الإيمان، رقم 9" },
-  { id: "t-4", hadith_id: "h-002", source_name: "صحيح مسلم", reference_text: "كتاب الإيمان، رقم 35" },
-  { id: "t-5", hadith_id: "h-003", source_name: "صحيح البخاري", reference_text: "كتاب الإيمان، رقم 10" },
-  { id: "t-6", hadith_id: "h-004", source_name: "صحيح البخاري", reference_text: "كتاب العلم، رقم 71" },
-  { id: "t-7", hadith_id: "h-005", source_name: "صحيح مسلم", reference_text: "كتاب البر والصلة، رقم 2594" },
-  { id: "t-8", hadith_id: "h-006", source_name: "صحيح مسلم", reference_text: "كتاب الإيمان، رقم 8" },
-  { id: "t-9", hadith_id: "h-008", source_name: "صحيح البخاري", reference_text: "كتاب الإيمان، رقم 13" },
+  { id: 1, hadith_id: "h-001", source_book: "صحيح البخاري", reference_number: "كتاب بدء الوحي، باب كيف كان بدء الوحي، رقم 1" },
+  { id: 2, hadith_id: "h-001", source_book: "صحيح مسلم", reference_number: "كتاب الإمارة، باب قوله إنما الأعمال بالنية، رقم 1907" },
+  { id: 3, hadith_id: "h-002", source_book: "صحيح البخاري", reference_number: "كتاب الإيمان، رقم 9" },
+  { id: 4, hadith_id: "h-002", source_book: "صحيح مسلم", reference_number: "كتاب الإيمان، رقم 35" },
+  { id: 5, hadith_id: "h-003", source_book: "صحيح البخاري", reference_number: "كتاب الإيمان، رقم 10" },
+  { id: 6, hadith_id: "h-004", source_book: "صحيح البخاري", reference_number: "كتاب العلم، رقم 71" },
+  { id: 7, hadith_id: "h-005", source_book: "صحيح مسلم", reference_number: "كتاب البر والصلة، رقم 2594" },
+  { id: 8, hadith_id: "h-006", source_book: "صحيح مسلم", reference_number: "كتاب الإيمان، رقم 8" },
+  { id: 9, hadith_id: "h-008", source_book: "صحيح البخاري", reference_number: "كتاب الإيمان، رقم 13" },
 ];
 
 const d = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400_000).toISOString();
@@ -181,12 +181,12 @@ export const MOCK_FAVORITES: { recording_id: string; user_id: string }[] = [
 ];
 
 export const MOCK_REPORTS: Report[] = [
-  { id: "rep-1", recording_id: "r-07", reporter_id: "u-002", reason: "poor_quality", note: "التسجيل فيه ضجيج شديد وغير مفهوم.", status: "open", created_at: d(2) },
-  { id: "rep-2", recording_id: "r-07", reporter_id: "u-003", reason: "incorrect_recitation", note: "خطأ في تشكيل كلمة «سَلِمَ».", status: "open", created_at: d(2) },
-  { id: "rep-3", recording_id: "r-07", reporter_id: "u-004", reason: "poor_quality", note: null, status: "open", created_at: d(1) },
-  { id: "rep-4", recording_id: "r-07", reporter_id: ADMIN_USER_ID, reason: "other", note: "مراجعة إدارية.", status: "open", created_at: d(1) },
-  { id: "rep-5", recording_id: "r-03", reporter_id: "u-002", reason: "incorrect_recitation", note: "قرأ «امرَأة» بفتح الراء والصواب الكسر.", status: "open", created_at: d(3) },
-  { id: "rep-6", recording_id: "r-05", reporter_id: "u-003", reason: "other", note: "انقطاع في نهاية التسجيل.", status: "resolved", created_at: d(6) },
+  { id: "rep-1", recording_id: "r-07", reporter_id: "u-002", reason: "poor_quality", details: "التسجيل فيه ضجيج شديد وغير مفهوم.", status: "open", created_at: d(2) },
+  { id: "rep-2", recording_id: "r-07", reporter_id: "u-003", reason: "incorrect_recitation", details: "خطأ في تشكيل كلمة «سَلِمَ».", status: "open", created_at: d(2) },
+  { id: "rep-3", recording_id: "r-07", reporter_id: "u-004", reason: "poor_quality", details: null, status: "open", created_at: d(1) },
+  { id: "rep-4", recording_id: "r-07", reporter_id: ADMIN_USER_ID, reason: "other", details: "مراجعة إدارية.", status: "open", created_at: d(1) },
+  { id: "rep-5", recording_id: "r-03", reporter_id: "u-002", reason: "incorrect_recitation", details: "قرأ «امرَأة» بفتح الراء والصواب الكسر.", status: "open", created_at: d(3) },
+  { id: "rep-6", recording_id: "r-05", reporter_id: "u-003", reason: "other", details: "انقطاع في نهاية التسجيل.", status: "resolved", created_at: d(6) },
 ];
 
 export const MOCK_CONTENT_REPORTS: ContentReport[] = [

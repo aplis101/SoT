@@ -46,7 +46,7 @@ export default function AdminContentPage() {
   const [sharh, setSharh] = useState("");
   const [bookName, setBookName] = useState("");
 
-  useEffect(() => { setSharh(hadith?.explanation_ar ?? ""); }, [hadith?.id, hadith?.explanation_ar]);
+  useEffect(() => { setSharh(hadith?.explanation ?? ""); }, [hadith?.id, hadith?.explanation]);
   useEffect(() => { setBookName(books.find((b) => b.id === bookId)?.name_ar ?? ""); }, [bookId, books]);
 
   const guard = async (fn: () => Promise<void>, okMsg: string) => {
@@ -68,7 +68,7 @@ export default function AdminContentPage() {
         throw new Error("الكلمة غير موجودة حرفياً في المتن — انسخها منه ليعمل التمييز داخل النص.");
       const saved = await repo.upsertWordDefinition({
         hadith_id: hadithId, word: wWord.trim(),
-        meaning_ar: wAr.trim(), meaning_id: wId.trim() || null,
+        definition_ar: wAr.trim(), definition_id: wId.trim() || null,
       } as Omit<WordDefinition, "id">);
       dispatch({ type: "UPSERT_WORD", word: saved });
       setWWord(""); setWAr(""); setWId("");
@@ -78,7 +78,7 @@ export default function AdminContentPage() {
     guard(async () => {
       if (!hadithId || tSource.trim().length < 2 || tRef.trim().length < 2) throw new Error("أدخل المصدر والموضع.");
       const saved = await repo.upsertTakhrij({
-        hadith_id: hadithId, source_name: tSource.trim(), reference_text: tRef.trim(),
+        hadith_id: hadithId, source_book: tSource.trim(), reference_number: tRef.trim(),
       } as Omit<TakhrijReference, "id">);
       dispatch({ type: "UPSERT_TAKHRIJ", item: saved });
       setTSource(""); setTRef("");
@@ -165,7 +165,7 @@ export default function AdminContentPage() {
                 حديث <span className="nums">{hadith.hadith_number}</span>
               </span>
               <span className="text-stone-500">
-                غريب: {stat(words.length)} · تخريج: {stat(refs.length)} · شرح: {hadith.explanation_ar ? "✓" : "—"}
+                غريب: {stat(words.length)} · تخريج: {stat(refs.length)} · شرح: {hadith.explanation ? "✓" : "—"}
               </span>
               <Link href={`/hadiths/${hadith.id}`} className="mr-auto text-primary hover:underline">معاينة ›</Link>
             </div>
@@ -182,8 +182,8 @@ export default function AdminContentPage() {
                   <li key={w.id} className="flex items-start gap-2 rounded-xl bg-stone-50 p-3">
                     <div className="min-w-0 flex-1">
                       <p className="font-hadith text-lg text-primary">{w.word}</p>
-                      <p className="text-[13px] text-stone-700">{w.meaning_ar}</p>
-                      {w.meaning_id && <p className="latin text-[12px] text-stone-500">{w.meaning_id}</p>}
+                      <p className="text-[13px] text-stone-700">{w.definition_ar}</p>
+                      {w.definition_id && <p className="latin text-[12px] text-stone-500">{w.definition_id}</p>}
                     </div>
                     <Button size="sm" variant="ghost" className="text-red-600" disabled={busy}
                       onClick={() => guard(async () => {
@@ -209,8 +209,8 @@ export default function AdminContentPage() {
               <ul className="space-y-2">
                 {refs.map((t) => (
                   <li key={t.id} className="flex items-center gap-2 rounded-xl bg-stone-50 p-3 text-[13px]">
-                    <span className="font-semibold text-stone-800">{t.source_name}:</span>
-                    <span className="text-stone-600">{t.reference_text}</span>
+                    <span className="font-semibold text-stone-800">{t.source_book}:</span>
+                    <span className="text-stone-600">{t.reference_number}</span>
                     <Button size="sm" variant="ghost" className="mr-auto text-red-600" disabled={busy}
                       onClick={() => guard(async () => {
                         await repo.deleteTakhrij(t.id);

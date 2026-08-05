@@ -43,8 +43,8 @@ export default function HadithText({ hadith, words }: { hadith: Hadith; words: W
           <div className="absolute inset-0" onClick={() => setOpen(null)} aria-hidden />
           <div className="relative w-full max-w-xs rounded-2xl bg-white p-5 shadow-xl">
             <p className="font-hadith text-2xl text-primary">{open.word}</p>
-            <p className="mt-2 text-[15px] leading-relaxed text-stone-700">{open.meaning_ar}</p>
-            {open.meaning_id && <p className="latin mt-2 text-sm text-stone-500">{open.meaning_id}</p>}
+            <p className="mt-2 text-[15px] leading-relaxed text-stone-700">{open.definition_ar}</p>
+            {open.definition_id && <p className="latin mt-2 text-sm text-stone-500">{open.definition_id}</p>}
             <button onClick={() => setOpen(null)} className="mt-4 w-full rounded-xl bg-stone-100 py-2 text-sm font-medium text-stone-700 hover:bg-stone-200">
               إغلاق
             </button>

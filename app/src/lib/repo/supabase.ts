@@ -239,7 +239,7 @@ export const supabaseRepo: Repo = {
   },
   async updateHadithExplanation(hadithId, explanation) {
     const { error } = await db().from("hadiths")
-      .update({ explanation_ar: explanation, updated_at: new Date().toISOString() })
+      .update({ explanation: explanation, updated_at: new Date().toISOString() })
       .eq("id", hadithId);
     if (error) throw new Error(`تعذّر حفظ الشرح: ${error.message}`);
   },

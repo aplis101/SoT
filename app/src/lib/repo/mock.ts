@@ -82,11 +82,11 @@ export const mockRepo: Repo = {
   updateSetting: noop,
 
   async upsertWordDefinition(w): Promise<WordDefinition> {
-    return { ...w, id: w.id ?? `w-${Math.random().toString(36).slice(2, 8)}` } as WordDefinition;
+    return { ...w, id: w.id ?? Math.floor(Date.now() % 2147483647) } as WordDefinition;
   },
   deleteWordDefinition: noop,
   async upsertTakhrij(t): Promise<TakhrijReference> {
-    return { ...t, id: t.id ?? `t-${Math.random().toString(36).slice(2, 8)}` } as TakhrijReference;
+    return { ...t, id: t.id ?? Math.floor(Date.now() % 2147483647) } as TakhrijReference;
   },
   deleteTakhrij: noop,
   updateHadithExplanation: noop,

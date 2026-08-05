@@ -17,8 +17,8 @@ export interface Collection { id: number; slug: string; name_ar: string; name_id
 export interface Book { id: number; collection_id: number; name_ar: string; name_id: string | null; sort_order: number; }
 export interface Chapter { id: number; book_id: number; name_ar: string; name_id: string | null; sort_order: number; }
 
-export interface WordDefinition { id: string; hadith_id: string; word: string; meaning_ar: string; meaning_id: string | null; }
-export interface TakhrijReference { id: string; hadith_id: string; source_name: string; reference_text: string; }
+export interface WordDefinition { id: number; hadith_id: string; word: string; definition_ar: string; definition_id: string | null; }
+export interface TakhrijReference { id: number; hadith_id: string; source_book: string; reference_number: string; }
 
 export interface Hadith {
   id: string;
@@ -28,7 +28,7 @@ export interface Hadith {
   matn_ar: string;
   translation_id: string | null;
   grade: HadithGrade;
-  explanation_ar: string | null;
+  explanation: string | null;
   length_class: "short" | "long";
   source_api: string;
 }
@@ -52,7 +52,7 @@ export interface Recording {
 
 export interface Report {
   id: string; recording_id: string; reporter_id: string;
-  reason: ReportReason; note: string | null; status: ReportStatus; created_at: string;
+  reason: ReportReason; details: string | null; status: ReportStatus; created_at: string;
 }
 export interface ContentReport {
   id: string; hadith_id: string; reporter_id: string;
