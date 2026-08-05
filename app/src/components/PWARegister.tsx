@@ -47,7 +47,7 @@ export default function PWARegister() {
         if (outcome === "accepted") setInstalled(true);
         setDeferred(null);
       }}
-      className="fixed bottom-4 left-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-lg transition hover:bg-primary-hover"
+      className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-lg transition hover:bg-primary-hover"
     >
       <span aria-hidden>⤓</span> ثبّت التطبيق
     </button>

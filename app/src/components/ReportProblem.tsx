@@ -151,21 +151,3 @@ export default function ReportProblem({
     </Modal>
   );
 }
-
-/** زر عائم متاح في كل صفحة */
-export function ReportProblemButton() {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        title="أبلغ عن مشكلة"
-        aria-label="أبلغ عن مشكلة"
-        className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg shadow-lg transition hover:border-primary hover:text-primary"
-      >
-        <span aria-hidden>🐞</span>
-      </button>
-      <ReportProblem open={open} onClose={() => setOpen(false)} />
-    </>
-  );
-}

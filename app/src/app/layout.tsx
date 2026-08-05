@@ -3,7 +3,7 @@ import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 import AppShell from "@/components/AppShell";
 import PWARegister from "@/components/PWARegister";
-import { ReportProblemButton } from "@/components/ReportProblem";
+import ReportProblemButton from "@/components/ReportProblemButton";
 import Diagnostics from "@/components/Diagnostics";
 
 export const metadata: Metadata = {
