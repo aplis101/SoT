@@ -7,7 +7,7 @@
  * ويستدعي الطبقة الحقيقية بعد كل تغيير.
  */
 import type { Repo, ContentSnapshot, InteractionSnapshot } from "./types";
-import type { Recording, WordDefinition, TakhrijReference } from "../types";
+import type { Recording, WordDefinition, TakhrijReference, BugReport } from "../types";
 import {
   MOCK_COLLECTIONS, MOCK_BOOKS, MOCK_CHAPTERS, MOCK_HADITHS,
   MOCK_WORD_DEFINITIONS, MOCK_TAKHRIJ, MOCK_PROFILES, MOCK_RECORDINGS,
@@ -105,6 +105,11 @@ export const mockRepo: Repo = {
   deleteTakhrij: noop,
   updateHadithExplanation: noop,
   renameBook: noop,
+
+  // في الوضع الوهمي نطبع البلاغ في الطرفية بدل إرساله — ليبقى النموذج قابلاً للتجربة
+  async submitBugReport(r) { console.info("[mock] bug report:", r); },
+  async loadBugReports(): Promise<BugReport[]> { return []; },
+  updateBugReport: noop,
 
   async audioUrl(filePath) { return "/" + filePath; },
 };

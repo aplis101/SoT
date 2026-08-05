@@ -5,7 +5,7 @@
  * وهمية محلية أم قادمة من Supabase. التبديل يتم بمتغيّر بيئة واحد.
  */
 import type {
-  Collection, Book, Chapter, Hadith, WordDefinition, TakhrijReference,
+  Collection, Book, Chapter, Hadith, WordDefinition, TakhrijReference, BugReport, BugReportInput,
   Recording, Report, ContentReport, AppSettings, Profile,
 } from "../types";
 
@@ -88,6 +88,12 @@ export interface Repo {
   deleteTakhrij(id: number): Promise<void>;
   updateHadithExplanation(hadithId: string, explanation: string | null): Promise<void>;
   renameBook(bookId: number, nameAr: string): Promise<void>;
+
+  // ---- بلاغات المنصة (F009) ----
+  /** متاح للزائر أيضاً — إن انهارت المنصة قبل الدخول فلا بد أن يبقى الإبلاغ ممكناً */
+  submitBugReport(r: BugReportInput): Promise<void>;
+  loadBugReports(): Promise<BugReport[]>;
+  updateBugReport(id: string, patch: { status?: BugReport["status"]; admin_note?: string }): Promise<void>;
 
   /** رابط تشغيل صالح لملف صوتي (موقّع في Supabase) */
   audioUrl(filePath: string): Promise<string>;

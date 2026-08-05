@@ -9,7 +9,7 @@ import { SUPABASE } from "../config";
 import type { Repo, ContentSnapshot, InteractionSnapshot } from "./types";
 import type {
   Recording, Report, ContentReport, AppSettings,
-  WordDefinition, TakhrijReference,
+  WordDefinition, TakhrijReference, BugReport, BugReportInput,
 } from "../types";
 
 let _client: SupabaseClient | null = null;
@@ -269,6 +269,23 @@ export const supabaseRepo: Repo = {
   async renameBook(bookId, nameAr) {
     const { error } = await db().from("books").update({ name_ar: nameAr }).eq("id", bookId);
     if (error) throw new Error(`تعذّر تعديل اسم الكتاب: ${error.message}`);
+  },
+
+  // ---------------------------------------------------------------- بلاغات المنصة
+  async submitBugReport(r: BugReportInput) {
+    const { error } = await db().from("bug_reports").insert(r);
+    if (error) throw new Error(`تعذّر إرسال البلاغ: ${error.message}`);
+  },
+  async loadBugReports() {
+    const res = await db().from("bug_reports").select("*").order("created_at", { ascending: false }).limit(500);
+    if (res.error) throw new Error(`قراءة البلاغات: ${res.error.message}`);
+    return (res.data ?? []) as BugReport[];
+  },
+  async updateBugReport(id, patch) {
+    const uid = await this.getSessionUserId();
+    const { error } = await db().from("bug_reports")
+      .update({ ...patch, resolved_by: uid, resolved_at: new Date().toISOString() }).eq("id", id);
+    if (error) throw new Error(`تعذّر تحديث البلاغ: ${error.message}`);
   },
 
   // ---------------------------------------------------------------- التخزين

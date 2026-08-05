@@ -3,6 +3,8 @@ import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 import AppShell from "@/components/AppShell";
 import PWARegister from "@/components/PWARegister";
+import { ReportProblemButton } from "@/components/ReportProblem";
+import Diagnostics from "@/components/Diagnostics";
 
 export const metadata: Metadata = {
   title: "منصة الحديث الشريف التفاعلية",
@@ -47,6 +49,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans antialiased">
         <StoreProvider>
           <AppShell>{children}</AppShell>
+          <Diagnostics />
+          <ReportProblemButton />
           <PWARegister />
         </StoreProvider>
       </body>

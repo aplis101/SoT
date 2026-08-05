@@ -80,3 +80,35 @@ export interface RecordingView extends Recording {
   favorited_by_me: boolean;
   is_community_best: boolean;
 }
+
+/** F009 — بلاغ عن مشكلة في المنصة نفسها (لا عن تسجيل ولا عن نصّ حديث) */
+export type BugKind = "bug" | "idea" | "content" | "other";
+export type BugStatus = "open" | "triaged" | "fixed" | "wontfix";
+
+export interface BugReport {
+  id: string;
+  user_id: string | null;
+  kind: BugKind;
+  message: string;
+  page_url: string | null;
+  user_agent: string | null;
+  app_version: string | null;
+  viewport: string | null;
+  diagnostics: unknown;
+  error_stack: string | null;
+  status: BugStatus;
+  admin_note: string | null;
+  created_at: string;
+}
+
+export interface BugReportInput {
+  user_id: string | null;
+  kind: BugKind;
+  message: string;
+  page_url: string | null;
+  user_agent: string | null;
+  app_version: string | null;
+  viewport: string | null;
+  diagnostics: unknown;
+  error_stack: string | null;
+}

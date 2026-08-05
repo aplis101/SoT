@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/admin/reports", label: "بلاغات الصوت" },
   { href: "/admin/content-reports", label: "بلاغات المحتوى" },
   { href: "/admin/content", label: "إدخال المحتوى" },
+  { href: "/admin/bugs", label: "بلاغات المنصة" },
   { href: "/admin/settings", label: "الإعدادات" },
 ];
 
