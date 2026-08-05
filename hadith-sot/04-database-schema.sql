@@ -10,6 +10,8 @@
 --   [DB-08 P1] bitrate_kbps بلا DEFAULT ⇒ فشل كل إدراج لا يذكره. أُضيف DEFAULT 32.
 --   [DB-06 P1] IDENTITY ALWAYS يمنع استيراد معرّفات مستقرة. صار BY DEFAULT.
 --   [DB-11 P2] 3 فهارس ناقصة. أُضيفت.
+--   [DB-13 P1] hadith_number كان INT بينما المصدر يرقّم فرعياً بالعشور (402.2).
+--              صار NUMERIC(10,2) — كُشف بفشل استيراد فعلي لا بمراجعة.
 -- Source: Derived from 03-data-model.md (SRS v1.0 §4)
 --
 -- تعليمات التنفيذ: يُنفَّذ هذا الملف مرة واحدة على مشروع Supabase جديد
@@ -92,7 +94,9 @@ CREATE TABLE chapters (
 CREATE TABLE hadiths (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     chapter_id     INT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
-    hadith_number  INT NOT NULL,
+    hadith_number  NUMERIC(10,2) NOT NULL,   -- [FIX DB-13] كان INT. المصدر يستخدم ترقيماً
+                                            -- فرعياً عشرياً (مثل 402.2) للروايات المتعددة
+                                            -- تحت رقم واحد — كُشف بفشل استيراد حقيقي.
     isnad_ar       TEXT NOT NULL,
     matn_ar        TEXT NOT NULL,
     translation_id TEXT,
