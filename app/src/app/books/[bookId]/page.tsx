@@ -1,19 +1,32 @@
 "use client";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, EmptyState, GradeBadge } from "@/components/ui";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useStore } from "@/lib/store";
+import { getRepo } from "@/lib/repo";
 
 /** PAGE-004 / F001 — أبواب الكتاب وأحاديثه */
 export default function BookPage({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = use(params);
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
+  const [loading, setLoading] = useState(true);
   const { collections: MOCK_COLLECTIONS, books: MOCK_BOOKS, chapters: MOCK_CHAPTERS, hadiths: MOCK_HADITHS } = state;
   const book = MOCK_BOOKS.find((b) => String(b.id) === bookId);
   if (!book) notFound();
   const col = MOCK_COLLECTIONS.find((c) => c.id === book.collection_id)!;
+
+  // [FIX PERF-01] أحاديث هذا الكتاب فقط — لا 35,798 حديثاً
+  useEffect(() => {
+    let off = false;
+    setLoading(true);
+    getRepo().loadHadithsForBook(Number(bookId))
+      .then((hs) => { if (!off) dispatch({ type: "MERGE_HADITHS", hadiths: hs }); })
+      .catch((e) => { if (!off) dispatch({ type: "TOAST", text: e instanceof Error ? e.message : "تعذّر التحميل", kind: "err" }); })
+      .finally(() => { if (!off) setLoading(false); });
+    return () => { off = true; };
+  }, [bookId, dispatch]);
   const chapters = MOCK_CHAPTERS.filter((c) => c.book_id === book.id).sort((a, b) => a.sort_order - b.sort_order);
 
   return (

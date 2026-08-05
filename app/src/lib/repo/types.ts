@@ -33,9 +33,24 @@ export interface InteractionSnapshot {
 export interface Repo {
   readonly kind: "mock" | "supabase";
 
-  /** يُستدعى مرة عند الإقلاع */
+  /**
+   * يُستدعى مرة عند الإقلاع — **الهرمية فقط** (مجموعات/كتب/أبواب ≈ 800 صف).
+   *
+   * [FIX PERF-01] كان يجلب الأحاديث كلها أيضاً. مع 35,798 حديثاً صار ذلك
+   * ~60 ميجابايت في كل فتحة للتطبيق ⇒ بطء شديد على الهاتف واستنفاد حصة
+   * Egress (5GB) خلال ~80 زيارة. الأحاديث تُجلب الآن عند الحاجة فقط.
+   */
   loadContent(): Promise<ContentSnapshot>;
   loadInteractions(): Promise<InteractionSnapshot>;
+
+  /** أحاديث كتاب واحد — تُستدعى عند فتح صفحة الكتاب */
+  loadHadithsForBook(bookId: number): Promise<Hadith[]>;
+  /** حديث واحد بتفاصيله — تُستدعى عند فتح صفحة الحديث */
+  loadHadith(hadithId: string): Promise<{
+    hadith: Hadith | null;
+    words: WordDefinition[];
+    takhrij: TakhrijReference[];
+  }>;
 
   // ---- المصادقة (F007 / UC-001) ----
   getSessionUserId(): Promise<string | null>;

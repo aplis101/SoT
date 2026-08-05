@@ -1,9 +1,9 @@
 "use client";
-import { use, useMemo, useState } from "react";
-import { notFound } from "next/navigation";
+import { use, useMemo, useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
+import { getRepo } from "@/lib/repo";
 import { pickDefaultRecording } from "@/lib/algorithms";
-import { Card, Button, GradeBadge, Modal } from "@/components/ui";
+import { Card, Button, GradeBadge, Modal, EmptyState } from "@/components/ui";
 import Breadcrumb from "@/components/Breadcrumb";
 import HadithText from "@/components/HadithText";
 import AudioPlayer from "@/components/AudioPlayer";
@@ -39,16 +39,24 @@ export default function HadithPage({ params }: { params: Promise<{ hadithId: str
   const [desc, setDesc] = useState("");
   const [override, setOverride] = useState<string | null>(null);
 
+  // [FIX PERF-01] تفاصيل هذا الحديث فقط عند الطلب — لا 35,798 حديثاً عند الإقلاع
+  useEffect(() => {
+    let off = false;
+    getRepo().loadHadith(hadithId)
+      .then((d) => { if (!off) dispatch({ type: "MERGE_HADITH_DETAIL", ...d }); })
+      .catch(() => { /* الوضع الوهمي يعمل من الحالة المحلية */ });
+    return () => { off = true; };
+  }, [hadithId, dispatch]);
+
   const hadith = MOCK_HADITHS.find((h) => h.id === hadithId);
-  if (!hadith) notFound();
 
-  const chapter = MOCK_CHAPTERS.find((c) => c.id === hadith.chapter_id)!;
-  const book = MOCK_BOOKS.find((b) => b.id === chapter.book_id)!;
-  const col = MOCK_COLLECTIONS.find((c) => c.id === book.collection_id)!;
-  const words = MOCK_WORD_DEFINITIONS.filter((w) => w.hadith_id === hadith.id);
-  const takhrij = MOCK_TAKHRIJ.filter((t) => t.hadith_id === hadith.id);
+  const chapter = MOCK_CHAPTERS.find((c) => c.id === hadith?.chapter_id);
+  const book = MOCK_BOOKS.find((b) => b.id === chapter?.book_id);
+  const col = MOCK_COLLECTIONS.find((c) => c.id === book?.collection_id);
+  const words = MOCK_WORD_DEFINITIONS.filter((w) => w.hadith_id === hadithId);
+  const takhrij = MOCK_TAKHRIJ.filter((t) => t.hadith_id === hadithId);
 
-  const list = viewsFor(hadith.id);
+  const list = viewsFor(hadithId);
   // ALG-001 — التسجيل الافتراضي، مع إمكانية تجاوزه يدوياً من اللوحة
   const current: RecordingView | null = useMemo(
     () => (override ? list.find((r) => r.id === override) ?? null : pickDefaultRecording(list)),
@@ -60,11 +68,15 @@ export default function HadithPage({ params }: { params: Promise<{ hadithId: str
     if (!me || desc.trim().length < 5) return;
     dispatch({
       type: "SUBMIT_CONTENT_REPORT",
-      report: { id: `crep-${Date.now()}`, hadith_id: hadith.id, reporter_id: me.id, error_type: errType, description: desc.trim(), status: "open", created_at: new Date().toISOString() },
+      report: { id: `crep-${Date.now()}`, hadith_id: hadithId, reporter_id: me.id, error_type: errType, description: desc.trim(), status: "open", created_at: new Date().toISOString() },
     });
     dispatch({ type: "TOAST", text: "شكراً لك — وصل بلاغ المحتوى إلى المشرف." });
     setContentReport(false); setDesc(""); setErrType("tashkeel");
   };
+
+  if (!hadith || !chapter || !book || !col) {
+    return <EmptyState icon="⏳" title="جارٍ تحميل الحديث…" hint="يُجلب من قاعدة البيانات عند الطلب." />;
+  }
 
   return (
     <div className="space-y-4">

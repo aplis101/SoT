@@ -44,15 +44,38 @@ export const supabaseRepo: Repo = {
   kind: "supabase",
 
   async loadContent(): Promise<ContentSnapshot> {
-    const [collections, books, chapters, hadiths, wordDefinitions, takhrij] = await Promise.all([
+    // [FIX PERF-01] الهرمية فقط (~800 صف). الأحاديث تُجلب عند الحاجة.
+    const [collections, books, chapters] = await Promise.all([
       fetchAll<ContentSnapshot["collections"][number]>("collections"),
       fetchAll<ContentSnapshot["books"][number]>("books"),
       fetchAll<ContentSnapshot["chapters"][number]>("chapters"),
-      fetchAll<ContentSnapshot["hadiths"][number]>("hadiths"),
-      fetchAll<WordDefinition>("word_definitions"),
-      fetchAll<TakhrijReference>("takhrij_references"),
     ]);
-    return { collections, books, chapters, hadiths, wordDefinitions, takhrij };
+    return { collections, books, chapters, hadiths: [], wordDefinitions: [], takhrij: [] };
+  },
+
+  async loadHadithsForBook(bookId) {
+    const ch = await db().from("chapters").select("id").eq("book_id", bookId);
+    if (ch.error) throw new Error(`قراءة الأبواب: ${ch.error.message}`);
+    const ids = (ch.data ?? []).map((c: { id: number }) => c.id);
+    if (ids.length === 0) return [];
+    const res = await db().from("hadiths").select("*").in("chapter_id", ids)
+      .order("hadith_number", { ascending: true });
+    if (res.error) throw new Error(`قراءة الأحاديث: ${res.error.message}`);
+    return (res.data ?? []) as Awaited<ReturnType<Repo["loadHadithsForBook"]>>;
+  },
+
+  async loadHadith(hadithId) {
+    const [h, w, t] = await Promise.all([
+      db().from("hadiths").select("*").eq("id", hadithId).maybeSingle(),
+      db().from("word_definitions").select("*").eq("hadith_id", hadithId),
+      db().from("takhrij_references").select("*").eq("hadith_id", hadithId),
+    ]);
+    if (h.error) throw new Error(`قراءة الحديث: ${h.error.message}`);
+    return {
+      hadith: (h.data ?? null) as never,
+      words: (w.data ?? []) as WordDefinition[],
+      takhrij: (t.data ?? []) as TakhrijReference[],
+    };
   },
 
   async loadInteractions(): Promise<InteractionSnapshot> {

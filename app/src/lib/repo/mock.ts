@@ -42,6 +42,20 @@ export const mockRepo: Repo = {
     };
   },
 
+  async loadHadithsForBook(bookId) {
+    const ids = MOCK_CHAPTERS.filter((c) => c.book_id === bookId).map((c) => c.id);
+    return MOCK_HADITHS.filter((h) => ids.includes(h.chapter_id))
+      .sort((a, b) => a.hadith_number - b.hadith_number);
+  },
+
+  async loadHadith(hadithId) {
+    return {
+      hadith: MOCK_HADITHS.find((h) => h.id === hadithId) ?? null,
+      words: MOCK_WORD_DEFINITIONS.filter((w) => w.hadith_id === hadithId),
+      takhrij: MOCK_TAKHRIJ.filter((t) => t.hadith_id === hadithId),
+    };
+  },
+
   async getSessionUserId() { return null; },        // الجلسة يديرها المخزن محلياً
   async signInWithGoogle() {
     throw new Error("Google OAuth غير مفعّل في وضع البيانات الوهمية. استخدم أزرار الدخول التجريبية.");

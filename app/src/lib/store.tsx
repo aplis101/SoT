@@ -62,6 +62,8 @@ const initialState: AppState = {
 type Action =
   | { type: "LOAD"; payload: Partial<AppState> }
   | { type: "HYDRATE_CONTENT"; payload: Partial<AppState> }
+  | { type: "MERGE_HADITHS"; hadiths: Hadith[] }
+  | { type: "MERGE_HADITH_DETAIL"; hadith: Hadith | null; words: WordDefinition[]; takhrij: TakhrijReference[] }
   | { type: "UPSERT_WORD"; word: WordDefinition }
   | { type: "DELETE_WORD"; id: number }
   | { type: "UPSERT_TAKHRIJ"; item: TakhrijReference }
@@ -110,6 +112,25 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, ...action.payload };
     case "HYDRATE_CONTENT":
       return { ...state, ...action.payload, contentLoaded: true };
+
+    // [FIX PERF-01] دمج الأحاديث المُحمَّلة عند الطلب بدل جلبها كلها عند الإقلاع
+    case "MERGE_HADITHS": {
+      const seen = new Set(state.hadiths.map((h) => h.id));
+      const add = action.hadiths.filter((h) => !seen.has(h.id));
+      return add.length ? { ...state, hadiths: [...state.hadiths, ...add] } : state;
+    }
+    case "MERGE_HADITH_DETAIL": {
+      const hadiths = action.hadith && !state.hadiths.some((h) => h.id === action.hadith!.id)
+        ? [...state.hadiths, action.hadith] : state.hadiths;
+      const wIds = new Set(state.wordDefinitions.map((w) => w.id));
+      const tIds = new Set(state.takhrij.map((t) => t.id));
+      return {
+        ...state,
+        hadiths,
+        wordDefinitions: [...state.wordDefinitions, ...action.words.filter((w) => !wIds.has(w.id))],
+        takhrij: [...state.takhrij, ...action.takhrij.filter((t) => !tIds.has(t.id))],
+      };
+    }
 
     case "UPSERT_WORD": {
       const rest = state.wordDefinitions.filter((w) => w.id !== action.word.id);

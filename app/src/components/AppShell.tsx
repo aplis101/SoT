@@ -14,6 +14,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // (رابط العرض ?as= يُعالَج في StoreProvider بعد تحميل الحالة المحفوظة)
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.search.includes("as=")) return;
+    if (pathname.startsWith("/auth/")) return;   // صفحة العودة من Google تتولّى نفسها
     if (!state.sessionUserId && pathname !== "/login") router.replace("/login");
     if (state.sessionUserId && pathname === "/login") router.replace("/");
   }, [state.sessionUserId, pathname, router]);

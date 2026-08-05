@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { getRepo } from "@/lib/repo";
 import { Card, Button, EmptyState, Modal } from "@/components/ui";
 
 /** PAGE-006 / F007 — الملف الشخصي */
@@ -34,7 +35,7 @@ export default function ProfilePage() {
             <p className="font-bold text-stone-900">{me.display_name}</p>
             <p className="text-sm text-stone-500">{isAdmin ? "مشرف المادة" : "طالب"}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => dispatch({ type: "LOGOUT" })}>خروج</Button>
+          <Button variant="outline" size="sm" onClick={async () => { try { await getRepo().signOut(); } catch { /* تجاهل */ } dispatch({ type: "LOGOUT" }); }}>خروج</Button>
         </div>
 
         <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
