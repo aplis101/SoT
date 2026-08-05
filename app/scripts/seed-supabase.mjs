@@ -27,16 +27,16 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CDN = "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1";
 
 const AVAILABLE = {
-  nawawi:   { ar: "ara-nawawi",   id: null,           name_ar: "الأربعون النووية", name_id: "Arbain Nawawi" },
-  qudsi:    { ar: "ara-qudsi",    id: null,           name_ar: "الأربعون القدسية", name_id: "Arbain Qudsi" },
-  dehlawi:  { ar: "ara-dehlawi",  id: null,           name_ar: "أربعون الدهلوي",   name_id: "Arbain Dehlawi" },
-  bukhari:  { ar: "ara-bukhari",  id: "ind-bukhari",  name_ar: "صحيح البخاري",     name_id: "Shahih Bukhari" },
-  muslim:   { ar: "ara-muslim",   id: "ind-muslim",   name_ar: "صحيح مسلم",        name_id: "Shahih Muslim" },
-  abudawud: { ar: "ara-abudawud", id: "ind-abudawud", name_ar: "سنن أبي داود",     name_id: "Sunan Abu Dawud" },
-  tirmidhi: { ar: "ara-tirmidhi", id: "ind-tirmidhi", name_ar: "جامع الترمذي",     name_id: "Jami' At-Tirmidhi" },
-  nasai:    { ar: "ara-nasai",    id: "ind-nasai",    name_ar: "سنن النسائي",      name_id: "Sunan An-Nasa'i" },
-  ibnmajah: { ar: "ara-ibnmajah", id: "ind-ibnmajah", name_ar: "سنن ابن ماجه",     name_id: "Sunan Ibn Majah" },
-  malik:    { ar: "ara-malik",    id: "ind-malik",    name_ar: "موطأ مالك",        name_id: "Muwatta Malik" },
+  nawawi:   { ar: "ara-nawawi",   id: null,           en: "eng-nawawi",           name_ar: "الأربعون النووية", name_id: "Arbain Nawawi" },
+  qudsi:    { ar: "ara-qudsi",    id: null,           en: "eng-qudsi",           name_ar: "الأربعون القدسية", name_id: "Arbain Qudsi" },
+  dehlawi:  { ar: "ara-dehlawi",  id: null,           en: "eng-dehlawi",           name_ar: "أربعون الدهلوي",   name_id: "Arbain Dehlawi" },
+  bukhari:  { ar: "ara-bukhari",  id: "ind-bukhari",  en: "eng-bukhari",  name_ar: "صحيح البخاري",     name_id: "Shahih Bukhari" },
+  muslim:   { ar: "ara-muslim",   id: "ind-muslim",   en: "eng-muslim",   name_ar: "صحيح مسلم",        name_id: "Shahih Muslim" },
+  abudawud: { ar: "ara-abudawud", id: "ind-abudawud", en: "eng-abudawud", name_ar: "سنن أبي داود",     name_id: "Sunan Abu Dawud" },
+  tirmidhi: { ar: "ara-tirmidhi", id: "ind-tirmidhi", en: "eng-tirmidhi", name_ar: "جامع الترمذي",     name_id: "Jami' At-Tirmidhi" },
+  nasai:    { ar: "ara-nasai",    id: "ind-nasai",    en: "eng-nasai",    name_ar: "سنن النسائي",      name_id: "Sunan An-Nasa'i" },
+  ibnmajah: { ar: "ara-ibnmajah", id: "ind-ibnmajah", en: "eng-ibnmajah", name_ar: "سنن ابن ماجه",     name_id: "Sunan Ibn Majah" },
+  malik:    { ar: "ara-malik",    id: "ind-malik",    en: "eng-malik",    name_ar: "موطأ مالك",        name_id: "Muwatta Malik" },
 };
 
 // ---------------------------------------------------------------- args
@@ -163,7 +163,7 @@ async function insertBatched(db, table, rows, label, conflict) {
   for (let i = 0; i < rows.length; i += BATCH) {
     const slice = rows.slice(i, i + BATCH);
     const q = conflict
-      ? db.from(table).upsert(slice, { onConflict: conflict, ignoreDuplicates: true })
+      ? db.from(table).upsert(slice, { onConflict: conflict, ignoreDuplicates: false })
       : db.from(table).insert(slice);
     const { error } = await q;
     if (error) throw new Error(`${label}: ${error.message}`);
@@ -203,15 +203,21 @@ async function run() {
     const cfg = AVAILABLE[k];
     process.stdout.write(`\n[${k}] تنزيل… `);
     const ar = await getJSON(`${CDN}/editions/${cfg.ar}.min.json`);
-    let tr = new Map();
+    const tr = new Map(), trEn = new Map();
     if (cfg.id) {
       try {
         const id = await getJSON(`${CDN}/editions/${cfg.id}.min.json`);
         for (const h of id.hadiths ?? []) tr.set(h.hadithnumber, h.text);
-      } catch { console.warn("(بلا ترجمة)"); }
+      } catch { console.warn("(بلا ترجمة إندونيسية)"); }
+    }
+    if (cfg.en) {
+      try {
+        const en = await getJSON(`${CDN}/editions/${cfg.en}.min.json`);
+        for (const h of en.hadiths ?? []) trEn.set(h.hadithnumber, h.text);
+      } catch { console.warn("(بلا ترجمة إنجليزية)"); }
     }
 
-    collections.push({ id: ++colId, slug: k, name_ar: cfg.name_ar, name_id: cfg.name_id, sort_order: colId });
+    collections.push({ id: ++colId, slug: k, name_ar: cfg.name_ar, name_id: cfg.name_id, name_en: ar.metadata?.name ?? cfg.name_id, sort_order: colId });
 
     const sections = ar.metadata?.sections ?? ar.metadata?.section ?? {};
     const bySec = new Map();
@@ -227,8 +233,8 @@ async function run() {
       const arName = AR_NAMES[src];
       if (!arName) unmapped.add(src);
 
-      books.push({ id: ++bookId, collection_id: colId, name_ar: arName ?? src, name_id: src, sort_order: Number(secNo) || bookId });
-      chapters.push({ id: ++chapId, book_id: bookId, name_ar: "الأحاديث", name_id: null, sort_order: 1 });
+      books.push({ id: ++bookId, collection_id: colId, name_ar: arName ?? src, name_id: src, name_en: src, sort_order: Number(secNo) || bookId });
+      chapters.push({ id: ++chapId, book_id: bookId, name_ar: "الأحاديث", name_id: null, name_en: "Hadiths", sort_order: 1 });
 
       for (const h of list) {
         const { isnad, matn } = splitIsnadMatn(h.text ?? "");
@@ -239,6 +245,7 @@ async function run() {
           isnad_ar: isnad || "—",
           matn_ar: matn,
           translation_id: tr.get(h.hadithnumber) ?? null,
+          translation_en: trEn.get(h.hadithnumber) ?? null,
           grade: mapGrade(h.grades, k),
           length_class: matn.length > 400 ? "long" : "short",
           source_api: "fawazahmed0/hadith-api",
@@ -257,7 +264,9 @@ async function run() {
   const withIsnad = hadiths.filter((h) => h.isnad_ar !== "—").length;
   console.log(`  فصل الإسناد: ${withIsnad}/${hadiths.length} = ${Math.round(100 * withIsnad / hadiths.length)}%`);
   const withTr = hadiths.filter((h) => h.translation_id).length;
-  console.log(`  مترجمة: ${withTr}/${hadiths.length} = ${Math.round(100 * withTr / hadiths.length)}%`);
+  const withEn = hadiths.filter((h) => h.translation_en).length;
+  console.log(`  إندونيسي: ${withTr}/${hadiths.length} = ${Math.round(100 * withTr / hadiths.length)}%`);
+  console.log(`  إنجليزي:  ${withEn}/${hadiths.length} = ${Math.round(100 * withEn / hadiths.length)}%`);
   if (unmapped.size) console.log(`  ⚠️ ${unmapped.size} اسم كتاب بلا تعريب`);
 
   if (DRY) { console.log("\n(--dry: لم يُدرج شيء)"); return; }

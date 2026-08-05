@@ -33,28 +33,28 @@ export const MOCK_PROFILES: Profile[] = [
 ];
 
 export const MOCK_COLLECTIONS: Collection[] = [
-  { id: 1, slug: "bukhari", name_ar: "صحيح البخاري", name_id: "Shahih Bukhari", sort_order: 1 },
-  { id: 2, slug: "muslim", name_ar: "صحيح مسلم", name_id: "Shahih Muslim", sort_order: 2 },
-  { id: 3, slug: "nawawi40", name_ar: "الأربعون النووية", name_id: "Arbain Nawawi", sort_order: 3 },
+  { id: 1, slug: "bukhari", name_ar: "صحيح البخاري", name_id: "Shahih Bukhari", name_en: "Sahih al-Bukhari", sort_order: 1 },
+  { id: 2, slug: "muslim", name_ar: "صحيح مسلم", name_id: "Shahih Muslim", name_en: "Sahih Muslim", sort_order: 2 },
+  { id: 3, slug: "nawawi40", name_ar: "الأربعون النووية", name_id: "Arbain Nawawi", name_en: "40 Hadith Nawawi", sort_order: 3 },
 ];
 
 export const MOCK_BOOKS: Book[] = [
-  { id: 1, collection_id: 1, name_ar: "كتاب بدء الوحي", name_id: "Kitab Permulaan Wahyu", sort_order: 1 },
-  { id: 2, collection_id: 1, name_ar: "كتاب الإيمان", name_id: "Kitab Iman", sort_order: 2 },
-  { id: 3, collection_id: 1, name_ar: "كتاب العلم", name_id: "Kitab Ilmu", sort_order: 3 },
-  { id: 4, collection_id: 2, name_ar: "كتاب الإيمان", name_id: "Kitab Iman", sort_order: 1 },
-  { id: 5, collection_id: 2, name_ar: "كتاب البر والصلة", name_id: "Kitab Berbakti", sort_order: 2 },
-  { id: 6, collection_id: 3, name_ar: "الأحاديث الأربعون", name_id: "Empat Puluh Hadits", sort_order: 1 },
+  { id: 1, collection_id: 1, name_ar: "كتاب بدء الوحي", name_id: "Kitab Permulaan Wahyu", name_en: null, sort_order: 1 },
+  { id: 2, collection_id: 1, name_ar: "كتاب الإيمان", name_id: "Kitab Iman", name_en: null, sort_order: 2 },
+  { id: 3, collection_id: 1, name_ar: "كتاب العلم", name_id: "Kitab Ilmu", name_en: null, sort_order: 3 },
+  { id: 4, collection_id: 2, name_ar: "كتاب الإيمان", name_id: "Kitab Iman", name_en: null, sort_order: 1 },
+  { id: 5, collection_id: 2, name_ar: "كتاب البر والصلة", name_id: "Kitab Berbakti", name_en: null, sort_order: 2 },
+  { id: 6, collection_id: 3, name_ar: "الأحاديث الأربعون", name_id: "Empat Puluh Hadits", name_en: null, sort_order: 1 },
 ];
 
 export const MOCK_CHAPTERS: Chapter[] = [
-  { id: 1, book_id: 1, name_ar: "باب كيف كان بدء الوحي", name_id: null, sort_order: 1 },
-  { id: 2, book_id: 2, name_ar: "باب أمور الإيمان", name_id: null, sort_order: 1 },
-  { id: 3, book_id: 2, name_ar: "باب المسلم من سلم المسلمون من لسانه ويده", name_id: null, sort_order: 2 },
-  { id: 4, book_id: 3, name_ar: "باب فضل العلم", name_id: null, sort_order: 1 },
-  { id: 5, book_id: 4, name_ar: "باب بيان الإيمان والإسلام والإحسان", name_id: null, sort_order: 1 },
-  { id: 6, book_id: 5, name_ar: "باب فضل الرفق", name_id: null, sort_order: 1 },
-  { id: 7, book_id: 6, name_ar: "باب النية", name_id: null, sort_order: 1 },
+  { id: 1, book_id: 1, name_ar: "باب كيف كان بدء الوحي", name_id: null, name_en: null, sort_order: 1 },
+  { id: 2, book_id: 2, name_ar: "باب أمور الإيمان", name_id: null, name_en: null, sort_order: 1 },
+  { id: 3, book_id: 2, name_ar: "باب المسلم من سلم المسلمون من لسانه ويده", name_id: null, name_en: null, sort_order: 2 },
+  { id: 4, book_id: 3, name_ar: "باب فضل العلم", name_id: null, name_en: null, sort_order: 1 },
+  { id: 5, book_id: 4, name_ar: "باب بيان الإيمان والإسلام والإحسان", name_id: null, name_en: null, sort_order: 1 },
+  { id: 6, book_id: 5, name_ar: "باب فضل الرفق", name_id: null, name_en: null, sort_order: 1 },
+  { id: 7, book_id: 6, name_ar: "باب النية", name_id: null, name_en: null, sort_order: 1 },
 ];
 
 export const MOCK_HADITHS: Hadith[] = [
@@ -63,6 +63,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا الحُمَيْدِيُّ عَبْدُ اللَّهِ بْنُ الزُّبَيْرِ، قَالَ: حَدَّثَنَا سُفْيَانُ، قَالَ: حَدَّثَنَا يَحْيَى بْنُ سَعِيدٍ الأَنْصَارِيُّ، قَالَ: أَخْبَرَنِي مُحَمَّدُ بْنُ إِبْرَاهِيمَ التَّيْمِيُّ، أَنَّهُ سَمِعَ عَلْقَمَةَ بْنَ وَقَّاصٍ اللَّيْثِيَّ يَقُولُ: سَمِعْتُ عُمَرَ بْنَ الخَطَّابِ رَضِيَ اللَّهُ عَنْهُ عَلَى المِنْبَرِ قَالَ: سَمِعْتُ رَسُولَ اللَّهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ يَقُولُ:",
     matn_ar: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى دُنْيَا يُصِيبُهَا أَوْ إِلَى امْرَأَةٍ يَنْكِحُهَا فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ",
     translation_id: "Sesungguhnya setiap amalan tergantung pada niatnya, dan setiap orang akan mendapatkan apa yang ia niatkan. Barangsiapa yang hijrahnya karena dunia yang ingin ia raih atau karena wanita yang ingin ia nikahi, maka hijrahnya sesuai dengan apa yang ia niatkan.",
+    translation_en: null,
     grade: "sahih",
     explanation: "هذا الحديث أصلٌ عظيم من أصول الدين، وقد قال العلماء إنه ثلث العلم. ومعناه أن صحة العمل وفساده وقبوله وردَّه بحسب النية الباعثة عليه. فالعمل الواحد قد يكون عبادةً وقد يكون عادة، والفارق بينهما النية.",
     length_class: "long", source_api: "mock",
@@ -72,6 +73,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا عَبْدُ اللَّهِ بْنُ مُحَمَّدٍ، قَالَ: حَدَّثَنَا أَبُو عَامِرٍ العَقَدِيُّ، عَنْ سُلَيْمَانَ بْنِ بِلَالٍ، عَنْ عَبْدِ اللَّهِ بْنِ دِينَارٍ، عَنْ أَبِي صَالِحٍ، عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللَّهُ عَنْهُ، عَنِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ:",
     matn_ar: "الإِيمَانُ بِضْعٌ وَسِتُّونَ شُعْبَةً، وَالحَيَاءُ شُعْبَةٌ مِنَ الإِيمَانِ",
     translation_id: "Iman itu ada enam puluh sekian cabang, dan malu adalah salah satu cabang dari iman.",
+    translation_en: null,
     grade: "sahih",
     explanation: "دلَّ الحديث على أن الإيمان يزيد وينقص، وأنه شُعَبٌ متعددة أعلاها التوحيد وأدناها إماطة الأذى عن الطريق، وأن الحياء خُلُقٌ يبعث على فعل الجميل وترك القبيح.",
     length_class: "short", source_api: "mock",
@@ -81,6 +83,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا آدَمُ بْنُ أَبِي إِيَاسٍ، قَالَ: حَدَّثَنَا شُعْبَةُ، عَنْ عَبْدِ اللَّهِ بْنِ أَبِي السَّفَرِ، وَإِسْمَاعِيلَ، عَنِ الشَّعْبِيِّ، عَنْ عَبْدِ اللَّهِ بْنِ عَمْرٍو رَضِيَ اللَّهُ عَنْهُمَا، عَنِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ:",
     matn_ar: "المُسْلِمُ مَنْ سَلِمَ المُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ، وَالمُهَاجِرُ مَنْ هَجَرَ مَا نَهَى اللَّهُ عَنْهُ",
     translation_id: "Seorang muslim adalah orang yang kaum muslimin selamat dari lisan dan tangannya, dan seorang muhajir adalah orang yang meninggalkan apa yang dilarang Allah.",
+    translation_en: null,
     grade: "sahih",
     explanation: "بيَّن النبي صلى الله عليه وسلم أن كمال الإسلام في كفِّ الأذى عن المسلمين قولاً وفعلاً، وأن حقيقة الهجرة هجرُ المعاصي لا مجردُ الانتقال من بلد إلى بلد.",
     length_class: "short", source_api: "mock",
@@ -90,6 +93,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا سَعِيدُ بْنُ عُفَيْرٍ، قَالَ: حَدَّثَنَا ابْنُ وَهْبٍ، عَنْ يُونُسَ، عَنِ ابْنِ شِهَابٍ، عَنْ حُمَيْدِ بْنِ عَبْدِ الرَّحْمَنِ، سَمِعْتُ مُعَاوِيَةَ خَطِيبًا يَقُولُ: سَمِعْتُ النَّبِيَّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ يَقُولُ:",
     matn_ar: "مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ، وَإِنَّمَا أَنَا قَاسِمٌ وَاللَّهُ يُعْطِي",
     translation_id: "Barangsiapa yang Allah kehendaki kebaikan padanya, niscaya Allah pahamkan ia dalam urusan agama. Sesungguhnya aku hanyalah pembagi, dan Allah-lah yang memberi.",
+    translation_en: null,
     grade: "sahih",
     explanation: "فيه فضل الفقه في الدين وأنه علامة إرادة الله بالعبد الخير، وأن النبي صلى الله عليه وسلم مبلِّغٌ عن ربه والتوفيق بيد الله وحده.",
     length_class: "short", source_api: "mock",
@@ -99,6 +103,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا يَحْيَى بْنُ يَحْيَى التَّمِيمِيُّ، أَخْبَرَنَا عَبْدُ الْعَزِيزِ بْنُ أَبِي حَازِمٍ، عَنْ أَبِيهِ، عَنْ عَائِشَةَ رَضِيَ اللَّهُ عَنْهَا، عَنِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ:",
     matn_ar: "إِنَّ الرِّفْقَ لَا يَكُونُ فِي شَيْءٍ إِلَّا زَانَهُ، وَلَا يُنْزَعُ مِنْ شَيْءٍ إِلَّا شَانَهُ",
     translation_id: "Sesungguhnya kelembutan tidaklah ada pada sesuatu melainkan ia akan menghiasinya, dan tidaklah dicabut dari sesuatu melainkan ia akan memperburuknya.",
+    translation_en: null,
     grade: "sahih",
     explanation: "حثٌّ على الرفق في الأمور كلها، وبيان أنه سببٌ للزينة والجمال في القول والعمل، وأن العنف سببٌ للشين والقبح.",
     length_class: "short", source_api: "mock",
@@ -108,6 +113,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا أَبُو خَيْثَمَةَ زُهَيْرُ بْنُ حَرْبٍ، حَدَّثَنَا وَكِيعٌ، عَنْ كَهْمَسٍ، عَنْ عَبْدِ اللَّهِ بْنِ بُرَيْدَةَ، عَنْ يَحْيَى بْنِ يَعْمَرَ، عَنْ عُمَرَ بْنِ الْخَطَّابِ رَضِيَ اللَّهُ عَنْهُ قَالَ:",
     matn_ar: "أَنْ تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ، فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ",
     translation_id: "Engkau beribadah kepada Allah seakan-akan engkau melihat-Nya. Jika engkau tidak melihat-Nya, maka sesungguhnya Dia melihatmu.",
+    translation_en: null,
     grade: "sahih",
     explanation: "هذا تعريف الإحسان، وهو أعلى مراتب الدين. ومعناه استحضار مراقبة الله في كل عمل، فمن استشعر ذلك أخلص وأتقن.",
     length_class: "short", source_api: "mock",
@@ -117,6 +123,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "عَنْ أَمِيرِ الْمُؤْمِنِينَ أَبِي حَفْصٍ عُمَرَ بْنِ الْخَطَّابِ رَضِيَ اللَّهُ عَنْهُ قَالَ: سَمِعْتُ رَسُولَ اللَّهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ يَقُولُ:",
     matn_ar: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
     translation_id: "Sesungguhnya setiap amalan tergantung pada niatnya, dan setiap orang akan mendapatkan apa yang ia niatkan.",
+    translation_en: null,
     grade: "sahih",
     explanation: "افتتح النووي رحمه الله أربعينه بهذا الحديث تنبيهاً على أن كل عملٍ لا يُراد به وجه الله فهو باطل لا ثمرة له في الدنيا ولا في الآخرة.",
     length_class: "short", source_api: "mock",
@@ -126,6 +133,7 @@ export const MOCK_HADITHS: Hadith[] = [
     isnad_ar: "حَدَّثَنَا مُسَدَّدٌ، قَالَ: حَدَّثَنَا يَحْيَى، عَنْ شُعْبَةَ، عَنْ قَتَادَةَ، عَنْ أَنَسٍ رَضِيَ اللَّهُ عَنْهُ، عَنِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ:",
     matn_ar: "لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
     translation_id: "Tidak sempurna iman salah seorang di antara kalian hingga ia mencintai untuk saudaranya apa yang ia cintai untuk dirinya sendiri.",
+    translation_en: null,
     grade: "sahih",
     explanation: "نفيُ الإيمان هنا نفيٌ للكمال لا لأصله. والمراد أن يحب لأخيه المسلم من الخير مثل ما يحب لنفسه، وهو أصلٌ في سلامة الصدر.",
     length_class: "short", source_api: "mock",
@@ -133,14 +141,14 @@ export const MOCK_HADITHS: Hadith[] = [
 ];
 
 export const MOCK_WORD_DEFINITIONS: WordDefinition[] = [
-  { id: 1, hadith_id: "h-001", word: "النِّيَّاتِ", definition_ar: "جمع نيّة، وهي القصد المقترن بالفعل. ومحلها القلب.", definition_id: "Niat: maksud yang menyertai perbuatan, tempatnya di hati." },
-  { id: 2, hadith_id: "h-001", word: "هِجْرَتُهُ", definition_ar: "الانتقال من دار الكفر إلى دار الإسلام، وتُطلق على ترك المعاصي.", definition_id: "Hijrah: berpindah dari negeri kufur ke negeri Islam." },
-  { id: 3, hadith_id: "h-002", word: "بِضْعٌ", definition_ar: "العدد من الثلاثة إلى التسعة.", definition_id: "Bidh'un: bilangan antara tiga sampai sembilan." },
-  { id: 4, hadith_id: "h-002", word: "شُعْبَةً", definition_ar: "خصلة وقطعة من الشيء؛ أي جزء من أجزاء الإيمان.", definition_id: "Cabang atau bagian dari sesuatu." },
-  { id: 5, hadith_id: "h-003", word: "المُهَاجِرُ", definition_ar: "التارك لبلده، والمراد هنا التارك للمنهيات.", definition_id: "Muhajir: orang yang meninggalkan (larangan Allah)." },
-  { id: 6, hadith_id: "h-004", word: "يُفَقِّهْهُ", definition_ar: "يجعله فقيهاً عالماً بأحكام الدين وأسرارها.", definition_id: "Menjadikannya faqih/paham dalam agama." },
-  { id: 7, hadith_id: "h-005", word: "زَانَهُ", definition_ar: "زيَّنه وحسَّنه.", definition_id: "Menghiasi dan memperindahnya." },
-  { id: 8, hadith_id: "h-005", word: "شَانَهُ", definition_ar: "عابه وقبَّحه.", definition_id: "Memperburuk dan mencacatinya." },
+  { id: 1, hadith_id: "h-001", word: "النِّيَّاتِ", definition_ar: "جمع نيّة، وهي القصد المقترن بالفعل. ومحلها القلب.", definition_id: "Niat: maksud yang menyertai perbuatan, tempatnya di hati.", definition_en: null },
+  { id: 2, hadith_id: "h-001", word: "هِجْرَتُهُ", definition_ar: "الانتقال من دار الكفر إلى دار الإسلام، وتُطلق على ترك المعاصي.", definition_id: "Hijrah: berpindah dari negeri kufur ke negeri Islam.", definition_en: null },
+  { id: 3, hadith_id: "h-002", word: "بِضْعٌ", definition_ar: "العدد من الثلاثة إلى التسعة.", definition_id: "Bidh'un: bilangan antara tiga sampai sembilan.", definition_en: null },
+  { id: 4, hadith_id: "h-002", word: "شُعْبَةً", definition_ar: "خصلة وقطعة من الشيء؛ أي جزء من أجزاء الإيمان.", definition_id: "Cabang atau bagian dari sesuatu.", definition_en: null },
+  { id: 5, hadith_id: "h-003", word: "المُهَاجِرُ", definition_ar: "التارك لبلده، والمراد هنا التارك للمنهيات.", definition_id: "Muhajir: orang yang meninggalkan (larangan Allah).", definition_en: null },
+  { id: 6, hadith_id: "h-004", word: "يُفَقِّهْهُ", definition_ar: "يجعله فقيهاً عالماً بأحكام الدين وأسرارها.", definition_id: "Menjadikannya faqih/paham dalam agama.", definition_en: null },
+  { id: 7, hadith_id: "h-005", word: "زَانَهُ", definition_ar: "زيَّنه وحسَّنه.", definition_id: "Menghiasi dan memperindahnya.", definition_en: null },
+  { id: 8, hadith_id: "h-005", word: "شَانَهُ", definition_ar: "عابه وقبَّحه.", definition_id: "Memperburuk dan mencacatinya.", definition_en: null },
 ];
 
 export const MOCK_TAKHRIJ: TakhrijReference[] = [

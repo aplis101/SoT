@@ -13,11 +13,11 @@ export interface Profile {
   last_active_at: string | null;
 }
 
-export interface Collection { id: number; slug: string; name_ar: string; name_id: string | null; sort_order: number; }
-export interface Book { id: number; collection_id: number; name_ar: string; name_id: string | null; sort_order: number; }
-export interface Chapter { id: number; book_id: number; name_ar: string; name_id: string | null; sort_order: number; }
+export interface Collection { id: number; slug: string; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; }
+export interface Book { id: number; collection_id: number; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; }
+export interface Chapter { id: number; book_id: number; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; }
 
-export interface WordDefinition { id: number; hadith_id: string; word: string; definition_ar: string; definition_id: string | null; }
+export interface WordDefinition { id: number; hadith_id: string; word: string; definition_ar: string; definition_id: string | null; definition_en: string | null; }
 export interface TakhrijReference { id: number; hadith_id: string; source_book: string; reference_number: string; }
 
 export interface Hadith {
@@ -27,6 +27,7 @@ export interface Hadith {
   isnad_ar: string;
   matn_ar: string;
   translation_id: string | null;
+  translation_en: string | null;
   grade: HadithGrade;
   explanation: string | null;
   length_class: "short" | "long";
