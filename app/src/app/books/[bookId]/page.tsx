@@ -2,7 +2,6 @@
 import { use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MOCK_BOOKS, MOCK_CHAPTERS, MOCK_HADITHS, MOCK_COLLECTIONS } from "@/lib/mock-data";
 import { Card, EmptyState, GradeBadge } from "@/components/ui";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useStore } from "@/lib/store";
@@ -11,6 +10,7 @@ import { useStore } from "@/lib/store";
 export default function BookPage({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = use(params);
   const { state } = useStore();
+  const { collections: MOCK_COLLECTIONS, books: MOCK_BOOKS, chapters: MOCK_CHAPTERS, hadiths: MOCK_HADITHS } = state;
   const book = MOCK_BOOKS.find((b) => String(b.id) === bookId);
   if (!book) notFound();
   const col = MOCK_COLLECTIONS.find((c) => c.id === book.collection_id)!;

@@ -1,11 +1,26 @@
 {
   "name": "منصة الحديث الشريف التفاعلية",
   "short_name": "الحديث",
+  "description": "منصة تعليمية لحفظ وضبط نطق الحديث الشريف بتسجيلات الطلاب",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#fafaf9",
   "theme_color": "#047857",
   "dir": "rtl",
   "lang": "ar",
-  "icons": []
+  "categories": ["education", "books"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-256.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "المكتبة", "url": "/", "description": "تصفّح المجموعات الحديثية" },
+    { "name": "ملفي", "url": "/profile", "description": "تسجيلاتي ومفضّلاتي" }
+  ]
 }

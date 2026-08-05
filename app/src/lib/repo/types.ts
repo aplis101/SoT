@@ -1,0 +1,79 @@
+/**
+ * عقد طبقة البيانات — نقطة الفصل الوحيدة بين الواجهة ومصدر البيانات.
+ *
+ * أي صفحة أو مكوّن يتعامل مع هذا العقد فقط، فلا يعرف إن كانت البيانات
+ * وهمية محلية أم قادمة من Supabase. التبديل يتم بمتغيّر بيئة واحد.
+ */
+import type {
+  Collection, Book, Chapter, Hadith, WordDefinition, TakhrijReference,
+  Recording, Report, ContentReport, AppSettings, Profile,
+} from "../types";
+
+/** المحتوى المرجعي — للقراءة فقط من الواجهة (يُستورد بدور الخدمة) */
+export interface ContentSnapshot {
+  collections: Collection[];
+  books: Book[];
+  chapters: Chapter[];
+  hadiths: Hadith[];
+  wordDefinitions: WordDefinition[];
+  takhrij: TakhrijReference[];
+}
+
+/** حالة التفاعل — تتغيّر باستمرار */
+export interface InteractionSnapshot {
+  profiles: Profile[];
+  recordings: Recording[];
+  likes: { recording_id: string; user_id: string }[];
+  favorites: { recording_id: string; user_id: string }[];
+  reports: Report[];
+  contentReports: ContentReport[];
+  settings: AppSettings;
+}
+
+export interface Repo {
+  readonly kind: "mock" | "supabase";
+
+  /** يُستدعى مرة عند الإقلاع */
+  loadContent(): Promise<ContentSnapshot>;
+  loadInteractions(): Promise<InteractionSnapshot>;
+
+  // ---- المصادقة (F007 / UC-001) ----
+  getSessionUserId(): Promise<string | null>;
+  signInWithGoogle(): Promise<void>;
+  signOut(): Promise<void>;
+
+  // ---- التفاعل (F005) ----
+  toggleLike(recordingId: string, on: boolean): Promise<void>;
+  toggleFavorite(recordingId: string, on: boolean): Promise<void>;
+  countListen(recordingId: string): Promise<void>;
+
+  // ---- التسجيلات (F004) ----
+  uploadRecording(input: {
+    hadithId: string;
+    blob: Blob;
+    durationSeconds: number;
+  }): Promise<Recording>;
+  deleteRecording(recordingId: string): Promise<void>;
+
+  // ---- البلاغات (F006) ----
+  submitReport(r: Omit<Report, "id" | "created_at" | "status">): Promise<void>;
+  submitContentReport(r: Omit<ContentReport, "id" | "created_at" | "status">): Promise<void>;
+  resolveReport(id: string, status: Report["status"]): Promise<void>;
+  resolveContentReport(id: string, status: Report["status"]): Promise<void>;
+
+  // ---- الإشراف (F008) ----
+  setVerified(recordingId: string, value: boolean): Promise<void>;
+  setHidden(recordingId: string, value: boolean): Promise<void>;
+  updateSetting(key: keyof AppSettings, value: number | boolean): Promise<void>;
+
+  // ---- إدخال المحتوى العلمي (المشرف) ----
+  upsertWordDefinition(w: Omit<WordDefinition, "id"> & { id?: string }): Promise<WordDefinition>;
+  deleteWordDefinition(id: string): Promise<void>;
+  upsertTakhrij(t: Omit<TakhrijReference, "id"> & { id?: string }): Promise<TakhrijReference>;
+  deleteTakhrij(id: string): Promise<void>;
+  updateHadithExplanation(hadithId: string, explanation: string | null): Promise<void>;
+  renameBook(bookId: number, nameAr: string): Promise<void>;
+
+  /** رابط تشغيل صالح لملف صوتي (موقّع في Supabase) */
+  audioUrl(filePath: string): Promise<string>;
+}

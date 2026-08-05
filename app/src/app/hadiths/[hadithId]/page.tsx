@@ -1,10 +1,6 @@
 "use client";
 import { use, useMemo, useState } from "react";
 import { notFound } from "next/navigation";
-import {
-  MOCK_HADITHS, MOCK_CHAPTERS, MOCK_BOOKS, MOCK_COLLECTIONS,
-  MOCK_WORD_DEFINITIONS, MOCK_TAKHRIJ,
-} from "@/lib/mock-data";
 import { useStore } from "@/lib/store";
 import { pickDefaultRecording } from "@/lib/algorithms";
 import { Card, Button, GradeBadge, Modal } from "@/components/ui";
@@ -34,6 +30,7 @@ const ERROR_TYPES: { v: ContentErrorType; label: string }[] = [
 export default function HadithPage({ params }: { params: Promise<{ hadithId: string }> }) {
   const { hadithId } = use(params);
   const { state, dispatch, me, viewsFor } = useStore();
+  const { collections: MOCK_COLLECTIONS, books: MOCK_BOOKS, chapters: MOCK_CHAPTERS, hadiths: MOCK_HADITHS, wordDefinitions: MOCK_WORD_DEFINITIONS, takhrij: MOCK_TAKHRIJ } = state;
   const [tab, setTab] = useState<(typeof TABS)[number]["k"]>("translation");
   const [sheet, setSheet] = useState(false);
   const [recorder, setRecorder] = useState(false);

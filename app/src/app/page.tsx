@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
-import { MOCK_COLLECTIONS, MOCK_BOOKS, MOCK_CHAPTERS, MOCK_HADITHS } from "@/lib/mock-data";
 import { Card, EmptyState } from "@/components/ui";
 import { useStore } from "@/lib/store";
 
 /** PAGE-002 / F001 / UC-002 — المجموعات (الرئيسية) */
 export default function HomePage() {
-  const { me } = useStore();
+  const { me, state } = useStore();
+  const { collections: MOCK_COLLECTIONS, books: MOCK_BOOKS, chapters: MOCK_CHAPTERS, hadiths: MOCK_HADITHS } = state;
   if (!me) return null;
 
   const countHadiths = (cid: number) => {

@@ -2,13 +2,15 @@
 import { use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MOCK_COLLECTIONS, MOCK_BOOKS, MOCK_CHAPTERS, MOCK_HADITHS } from "@/lib/mock-data";
 import { Card, EmptyState } from "@/components/ui";
 import Breadcrumb from "@/components/Breadcrumb";
+import { useStore } from "@/lib/store";
 
 /** PAGE-003 / F001 — كتب المجموعة */
 export default function CollectionPage({ params }: { params: Promise<{ collectionId: string }> }) {
   const { collectionId } = use(params);
+  const { state } = useStore();
+  const { collections: MOCK_COLLECTIONS, books: MOCK_BOOKS, chapters: MOCK_CHAPTERS, hadiths: MOCK_HADITHS } = state;
   const col = MOCK_COLLECTIONS.find((c) => String(c.id) === collectionId);
   if (!col) notFound();
   const books = MOCK_BOOKS.filter((b) => b.collection_id === col.id).sort((a, b) => a.sort_order - b.sort_order);

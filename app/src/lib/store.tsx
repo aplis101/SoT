@@ -1,11 +1,16 @@
 "use client";
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from "react";
-import type { Recording, Report, ContentReport, AppSettings, RecordingView, Profile } from "./types";
+import type {
+  Recording, Report, ContentReport, AppSettings, RecordingView, Profile,
+  Collection, Book, Chapter, Hadith, WordDefinition, TakhrijReference,
+} from "./types";
 import {
   MOCK_RECORDINGS, MOCK_LIKES, MOCK_FAVORITES, MOCK_REPORTS, MOCK_CONTENT_REPORTS,
-  MOCK_SETTINGS, MOCK_PROFILES, CURRENT_USER_ID, ADMIN_USER_ID,
+  MOCK_SETTINGS, MOCK_PROFILES, MOCK_COLLECTIONS, MOCK_BOOKS, MOCK_CHAPTERS,
+  MOCK_HADITHS, MOCK_WORD_DEFINITIONS, MOCK_TAKHRIJ, CURRENT_USER_ID, ADMIN_USER_ID,
 } from "./mock-data";
 import { evaluateReportState, isCommunityBest } from "./algorithms";
+import { getRepo } from "./repo";
 
 const STORAGE_KEY = "hadith-prototype-state-v1";
 
@@ -14,6 +19,14 @@ type Pair = { recording_id: string; user_id: string };
 export interface AppState {
   sessionUserId: string | null;
   viewAsAdmin: boolean;
+  /** المحتوى المرجعي — يُحمَّل من طبقة البيانات عند الإقلاع، ولا يُحفظ في localStorage */
+  collections: Collection[];
+  books: Book[];
+  chapters: Chapter[];
+  hadiths: Hadith[];
+  wordDefinitions: WordDefinition[];
+  takhrij: TakhrijReference[];
+  contentLoaded: boolean;
   profiles: Profile[];
   recordings: Recording[];
   likes: Pair[];
@@ -28,6 +41,13 @@ export interface AppState {
 const initialState: AppState = {
   sessionUserId: null,
   viewAsAdmin: false,
+  collections: MOCK_COLLECTIONS,
+  books: MOCK_BOOKS,
+  chapters: MOCK_CHAPTERS,
+  hadiths: MOCK_HADITHS,
+  wordDefinitions: MOCK_WORD_DEFINITIONS,
+  takhrij: MOCK_TAKHRIJ,
+  contentLoaded: false,
   profiles: MOCK_PROFILES,
   recordings: MOCK_RECORDINGS,
   likes: MOCK_LIKES,
@@ -41,6 +61,13 @@ const initialState: AppState = {
 
 type Action =
   | { type: "LOAD"; payload: Partial<AppState> }
+  | { type: "HYDRATE_CONTENT"; payload: Partial<AppState> }
+  | { type: "UPSERT_WORD"; word: WordDefinition }
+  | { type: "DELETE_WORD"; id: string }
+  | { type: "UPSERT_TAKHRIJ"; item: TakhrijReference }
+  | { type: "DELETE_TAKHRIJ"; id: string }
+  | { type: "SET_EXPLANATION"; hadithId: string; text: string | null }
+  | { type: "RENAME_BOOK"; bookId: number; nameAr: string }
   | { type: "LOGIN"; asAdmin: boolean }
   | { type: "LOGOUT" }
   | { type: "TOGGLE_LIKE"; recordingId: string }
@@ -81,6 +108,33 @@ function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "LOAD":
       return { ...state, ...action.payload };
+    case "HYDRATE_CONTENT":
+      return { ...state, ...action.payload, contentLoaded: true };
+
+    case "UPSERT_WORD": {
+      const rest = state.wordDefinitions.filter((w) => w.id !== action.word.id);
+      return { ...state, wordDefinitions: [...rest, action.word] };
+    }
+    case "DELETE_WORD":
+      return { ...state, wordDefinitions: state.wordDefinitions.filter((w) => w.id !== action.id) };
+    case "UPSERT_TAKHRIJ": {
+      const rest = state.takhrij.filter((t) => t.id !== action.item.id);
+      return { ...state, takhrij: [...rest, action.item] };
+    }
+    case "DELETE_TAKHRIJ":
+      return { ...state, takhrij: state.takhrij.filter((t) => t.id !== action.id) };
+    case "SET_EXPLANATION":
+      return {
+        ...state,
+        hadiths: state.hadiths.map((h) =>
+          h.id === action.hadithId ? { ...h, explanation_ar: action.text } : h
+        ),
+      };
+    case "RENAME_BOOK":
+      return {
+        ...state,
+        books: state.books.map((b) => (b.id === action.bookId ? { ...b, name_ar: action.nameAr } : b)),
+      };
     case "LOGIN":
       return { ...state, sessionUserId: action.asAdmin ? ADMIN_USER_ID : CURRENT_USER_ID, viewAsAdmin: action.asAdmin };
     case "LOGOUT":
@@ -213,10 +267,40 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     } catch { /* تجاهل */ }
   }, []);
 
+  // تحميل المحتوى والتفاعل من طبقة البيانات (mock أو Supabase حسب الإعداد)
   useEffect(() => {
+    let cancelled = false;
+    const repo = getRepo();
+    (async () => {
+      try {
+        const content = await repo.loadContent();
+        if (cancelled) return;
+        dispatch({ type: "HYDRATE_CONTENT", payload: content });
+
+        if (repo.kind === "supabase") {
+          const [inter, uid] = await Promise.all([repo.loadInteractions(), repo.getSessionUserId()]);
+          if (cancelled) return;
+          dispatch({ type: "LOAD", payload: { ...inter, sessionUserId: uid } });
+        }
+      } catch (e) {
+        if (!cancelled) {
+          dispatch({
+            type: "TOAST",
+            text: `تعذّر تحميل البيانات: ${e instanceof Error ? e.message : "خطأ غير معروف"}`,
+            kind: "err",
+          });
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    // في الوضع الحيّ المصدر هو قاعدة البيانات، فلا نحفظ نسخة محلية قد تتعارض معها.
+    if (getRepo().kind === "supabase") return;
     try {
-      const { toast, ...persist } = state;
-      void toast;
+      const { toast, collections, books, chapters, hadiths, wordDefinitions, takhrij, ...persist } = state;
+      void [toast, collections, books, chapters, hadiths, wordDefinitions, takhrij];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
     } catch { /* تجاهل */ }
   }, [state]);

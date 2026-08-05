@@ -3,7 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { Card, Button, EmptyState } from "@/components/ui";
-import { MOCK_HADITHS } from "@/lib/mock-data";
 import type { ReportStatus } from "@/lib/types";
 
 const TYPE_AR: Record<string, string> = {
@@ -13,6 +12,7 @@ const TYPE_AR: Record<string, string> = {
 /** PAGE-007-SUB-02 / UC-012 — عالج فجوة TST-02 (لم يكن لها أي تغطية) */
 export default function AdminContentReports() {
   const { state, dispatch } = useStore();
+  const MOCK_HADITHS = state.hadiths;
   const [filter, setFilter] = useState<ReportStatus | "all">("open");
   const list = state.contentReports.filter((r) => (filter === "all" ? true : r.status === filter));
 

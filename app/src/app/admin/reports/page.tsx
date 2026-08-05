@@ -3,7 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { Card, Button, EmptyState } from "@/components/ui";
-import { MOCK_HADITHS } from "@/lib/mock-data";
 import { reportThresholds } from "@/lib/algorithms";
 import type { ReportStatus } from "@/lib/types";
 
@@ -19,6 +18,7 @@ const FILTERS: { v: ReportStatus | "all"; label: string }[] = [
 /** PAGE-007-SUB-01 / UC-012 */
 export default function AdminReports() {
   const { state, dispatch, activeUsersCount } = useStore();
+  const MOCK_HADITHS = state.hadiths;
   const [filter, setFilter] = useState<ReportStatus | "all">("open");
   const t = reportThresholds(activeUsersCount, state.settings);
 

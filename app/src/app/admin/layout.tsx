@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/admin", label: "نظرة عامة" },
   { href: "/admin/reports", label: "بلاغات الصوت" },
   { href: "/admin/content-reports", label: "بلاغات المحتوى" },
+  { href: "/admin/content", label: "إدخال المحتوى" },
   { href: "/admin/settings", label: "الإعدادات" },
 ];
 

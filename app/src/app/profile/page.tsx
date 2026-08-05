@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { MOCK_HADITHS } from "@/lib/mock-data";
 import { Card, Button, EmptyState, Modal } from "@/components/ui";
 
 /** PAGE-006 / F007 — الملف الشخصي */
 export default function ProfilePage() {
   const { state, dispatch, me, isAdmin } = useStore();
+  const MOCK_HADITHS = state.hadiths;
   const [confirm, setConfirm] = useState<string | null>(null);
   if (!me) return null;
 
