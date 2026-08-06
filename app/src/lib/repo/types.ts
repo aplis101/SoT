@@ -97,4 +97,36 @@ export interface Repo {
 
   /** رابط تشغيل صالح لملف صوتي (موقّع في Supabase) */
   audioUrl(filePath: string): Promise<string>;
+
+  // ---- البحث (F010) ----
+  /**
+   * بحث نصّي في اللغات الثلاث دفعةً واحدة — لا يحتاج المستخدم أن يخبرنا بلغته.
+   * العربي يُطبَّع قبل المطابقة (حذف التشكيل، توحيد الألف والياء والتاء المربوطة)
+   * فمن يكتب «انما الاعمال» يجد «إنَّمَا الأَعْمَالُ». تفصيله في 09-search.sql.
+   */
+  searchHadiths(query: string, opts?: SearchOptions): Promise<SearchResult[]>;
+}
+
+export interface SearchOptions {
+  /** slug المجموعة للتصفية، أو undefined للبحث في الكل */
+  collection?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SearchResult {
+  id: string;
+  chapterId: number;
+  bookId: number;
+  collectionSlug: string;
+  hadithNumber: number;
+  matnAr: string;
+  isnadAr: string | null;
+  translationEn: string | null;
+  translationId: string | null;
+  bookName: { ar: string; en: string | null; id: string | null };
+  collectionName: { ar: string; en: string | null; id: string | null };
+  /** مقتطف فيه <mark> حول مواضع التطابق — نصّ مطبَّع بلا تشكيل */
+  snippet: string;
+  rank: number;
 }

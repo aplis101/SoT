@@ -295,4 +295,43 @@ export const supabaseRepo: Repo = {
     if (error || !data) throw new Error(`تعذّر توليد رابط الصوت: ${error?.message ?? ""}`);
     return data.signedUrl;
   },
+
+  // ------------------------------------------------------------------ البحث
+  async searchHadiths(query, opts = {}) {
+    const q = (query ?? "").trim();
+    if (q.length < 2) return [];   // الدالة تُرجع فارغاً أيضاً، لكن نوفّر الرحلة
+
+    const { data, error } = await db().rpc("search_hadiths", {
+      p_query: q,
+      p_collection: opts.collection ?? null,
+      p_limit: opts.limit ?? 30,
+      p_offset: opts.offset ?? 0,
+    });
+    if (error) throw new Error(`تعذّر البحث: ${error.message}`);
+
+    type Row = {
+      id: string; chapter_id: number; book_id: number; collection_slug: string;
+      hadith_number: number; matn_ar: string; isnad_ar: string | null;
+      translation_en: string | null; translation_id: string | null;
+      book_name_ar: string; book_name_en: string | null; book_name_id: string | null;
+      collection_ar: string; collection_en: string | null; collection_id_n: string | null;
+      snippet: string; rank: number;
+    };
+
+    return ((data ?? []) as Row[]).map((r) => ({
+      id: r.id,
+      chapterId: r.chapter_id,
+      bookId: r.book_id,
+      collectionSlug: r.collection_slug,
+      hadithNumber: Number(r.hadith_number),
+      matnAr: r.matn_ar,
+      isnadAr: r.isnad_ar,
+      translationEn: r.translation_en,
+      translationId: r.translation_id,
+      bookName: { ar: r.book_name_ar, en: r.book_name_en, id: r.book_name_id },
+      collectionName: { ar: r.collection_ar, en: r.collection_en, id: r.collection_id_n },
+      snippet: r.snippet,
+      rank: r.rank,
+    }));
+  },
 };

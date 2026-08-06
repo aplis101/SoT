@@ -6,7 +6,7 @@
  * كاملة بلا خادم. عند التبديل إلى Supabase يصبح المخزن متفائلاً (optimistic)
  * ويستدعي الطبقة الحقيقية بعد كل تغيير.
  */
-import type { Repo, ContentSnapshot, InteractionSnapshot } from "./types";
+import type { Repo, ContentSnapshot, InteractionSnapshot, SearchResult } from "./types";
 import type { Recording, WordDefinition, TakhrijReference, BugReport } from "../types";
 import {
   MOCK_COLLECTIONS, MOCK_BOOKS, MOCK_CHAPTERS, MOCK_HADITHS,
@@ -112,4 +112,47 @@ export const mockRepo: Repo = {
   updateBugReport: noop,
 
   async audioUrl(filePath) { return "/" + filePath; },
+
+  // بحث وهمي بنفس منطق التطبيع العربي المستعمل في Postgres، حتى يبقى سلوك
+  // الوضعين متطابقاً ولا يفاجئنا الفرق عند التبديل.
+  async searchHadiths(query, opts = {}) {
+    const norm = (t: string) =>
+      (t ?? "")
+        .replace(/[ً-ْـۖ-ۭ]/g, "")
+        .replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي")
+        .replace(/ة/g, "ه").replace(/ؤ/g, "و").replace(/ئ/g, "ي")
+        .replace(/\s+/g, " ").trim();
+
+    const q = norm(query);
+    if (q.length < 2) return [];
+    const terms = q.split(" ").filter(Boolean);
+
+    const out: SearchResult[] = [];
+    for (const h of MOCK_HADITHS) {
+      const hay = norm(`${h.matn_ar} ${h.isnad_ar ?? ""} ${h.translation_en ?? ""} ${h.translation_id ?? ""}`);
+      const hits = terms.filter((t) => hay.includes(t)).length;
+      if (hits === 0) continue;
+
+      const chapter = MOCK_CHAPTERS.find((c) => c.id === h.chapter_id);
+      const book = MOCK_BOOKS.find((b) => b.id === chapter?.book_id);
+      const coll = MOCK_COLLECTIONS.find((c) => c.id === book?.collection_id);
+      const matn = norm(h.matn_ar);
+      const at = matn.indexOf(terms[0]);
+      const from = Math.max(0, at - 40);
+
+      out.push({
+        id: h.id, chapterId: h.chapter_id, bookId: book?.id ?? 0,
+        collectionSlug: coll?.slug ?? "", hadithNumber: Number(h.hadith_number),
+        matnAr: h.matn_ar, isnadAr: h.isnad_ar ?? null,
+        translationEn: h.translation_en ?? null, translationId: h.translation_id ?? null,
+        bookName: { ar: book?.name_ar ?? "", en: book?.name_en ?? null, id: book?.name_id ?? null },
+        collectionName: { ar: coll?.name_ar ?? "", en: coll?.name_en ?? null, id: coll?.name_id ?? null },
+        snippet: (from > 0 ? "…" : "") + matn.slice(from, from + 120) + "…",
+        rank: hits / terms.length,
+      });
+    }
+    out.sort((a, b) => b.rank - a.rank);
+    const off = opts.offset ?? 0;
+    return out.slice(off, off + (opts.limit ?? 30));
+  },
 };

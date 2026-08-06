@@ -44,6 +44,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
             <nav className="mr-auto flex items-center gap-1 text-sm">
               <Link href="/" className={`rounded-lg px-3 py-1.5 ${pathname === "/" ? "bg-primary-soft text-primary" : "text-stone-600 hover:bg-stone-100"}`}>المكتبة</Link>
+              {/* [F010] البحث في مقدمة التنقل — لا معنى لـ٣٥ ألف حديث بلا وصول إليها */}
+              <Link href="/search" aria-label="البحث في الأحاديث" className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 ${pathname === "/search" ? "bg-primary-soft text-primary" : "text-stone-600 hover:bg-stone-100"}`}>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                  <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                البحث
+              </Link>
               <Link href="/profile" className={`rounded-lg px-3 py-1.5 ${pathname === "/profile" ? "bg-primary-soft text-primary" : "text-stone-600 hover:bg-stone-100"}`}>ملفي</Link>
               {isAdmin && (
                 <Link href="/admin" className={`rounded-lg px-3 py-1.5 ${pathname.startsWith("/admin") ? "bg-primary-soft text-primary" : "text-stone-600 hover:bg-stone-100"}`}>
