@@ -30,6 +30,9 @@ export default function ReportProblem({
   const [showDetails, setShowDetails] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  // [FIX SEC-09] رفض حدّ المعدل ليس عطلاً — يُعرض داخل النموذج بنبرة هادئة
+  // لا كتوست أحمر يوحي بانهيار، والنصّ يبقى في الحقل فلا يفقد المستخدم كتابته.
+  const [notice, setNotice] = useState<string | null>(null);
 
   const diags = getDiagnostics();
   const ctx = snapshotContext();
@@ -37,6 +40,7 @@ export default function ReportProblem({
   const submit = async () => {
     if (message.trim().length < 5) return;
     setBusy(true);
+    setNotice(null);
     try {
       await getRepo().submitBugReport({
         user_id: state.sessionUserId,
@@ -50,17 +54,22 @@ export default function ReportProblem({
       setDone(true);
       setMessage("");
     } catch (e) {
-      dispatch({
-        type: "TOAST",
-        kind: "err",
-        text: e instanceof Error ? e.message : "تعذّر إرسال البلاغ — حاول لاحقاً.",
-      });
+      const msg = e instanceof Error ? e.message : "تعذّر إرسال البلاغ — حاول لاحقاً.";
+      // نميّز الرفض المقصود (حدّ المعدل/تكرار) عن العطل الحقيقي بـname لا بنصّ
+      // الرسالة — النصّ عربي قابل للتغيير، والاسم عقد ثابت (RateLimitError).
+      if (e instanceof Error && e.name === "RateLimitError") {
+        setNotice(msg);
+      } else if (/وصل قبل قليل|الحدّ الأقصى|حدّها في هذه الساعة/.test(msg)) {
+        setNotice(msg);   // الوضع الوهمي يرمي Error عادياً بالنصّ نفسه
+      } else {
+        dispatch({ type: "TOAST", kind: "err", text: msg });
+      }
     } finally {
       setBusy(false);
     }
   };
 
-  const close = () => { setDone(false); setShowDetails(false); onClose(); };
+  const close = () => { setDone(false); setShowDetails(false); setNotice(null); onClose(); };
 
   return (
     <Modal open={open} onClose={close} title="أبلغ عن مشكلة">
@@ -78,6 +87,12 @@ export default function ReportProblem({
           {errorStack && (
             <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900">
               حدث عطل في الصفحة. وصفك لما كنت تفعله قبله يختصر علينا وقتاً طويلاً.
+            </p>
+          )}
+
+          {notice && (
+            <p role="status" className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-[13px] text-sky-900">
+              {notice}
             </p>
           )}
 

@@ -23,6 +23,11 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- نصوصنا مشكَّلة بالكامل، والطالب لا يكتب التشكيل أبداً. فالتطبيع ليس تحسيناً
 -- بل شرط عمل الميزة أصلاً.
 --
+-- ⚠️ عقد مزدوج التنفيذ: هذه الدالة لها **توأم في الواجهة** — `fold()` في
+-- `app/src/lib/highlight.ts`. يجب أن يتطابق سلوكهما حرفياً، وإلا ظلّلت الواجهة
+-- ما لم تجده القاعدة أو تركت ما وجدته. أي تعديل هنا يُنقل إلى هناك، ويحرسه
+-- `npm run test:highlight`. (سبب التكرار مشروح في 20-counts.sql وفي الملفّ نفسه.)
+--
 -- IMMUTABLE ضرورية لأن الدالة تُستعمل في عمود مولَّد وفهرس.
 CREATE OR REPLACE FUNCTION ar_normalize(t TEXT)
 RETURNS TEXT AS $$
@@ -110,6 +115,14 @@ BEGIN
            h.matn_ar, h.isnad_ar, h.translation_en, h.translation_id,
            b.name_ar, b.name_en, b.name_id,
            c.name_ar, c.name_en, c.name_id,
+           -- ⚠️ متروك للتوافق فقط — الواجهة لم تعد تستعمله [FIX SRCH-01].
+           -- كان يبني المقتطف من النصّ **المطبَّع**، فيظهر متن الحديث في نتائج
+           -- البحث بلا تشكيل: «انما الاعمال بالنيات» بدل «إِنَّمَا الأَعْمَالُ
+           -- بِالنِّيَّاتِ». عيبٌ لا يُحتمل في منصة غايتها ضبط النطق. وكان
+           -- يُطبَّق على `matn_ar` وحده، فمن بحث بالإندونيسية أو الإنجليزية
+           -- رأى نتيجةً بلا أي دليل على موضع المطابقة [FIX SRCH-02].
+           -- التظليل الآن في المتصفح فوق النصّ الأصلي: `src/lib/highlight.ts`.
+           -- يُحذف هذا العمود في v2 بعد التأكّد من عدم وجود مستهلك له.
            ts_headline('simple', ar_normalize(h.matn_ar), tsq,
                        'StartSel=<mark>,StopSel=</mark>,MaxWords=32,MinWords=12,MaxFragments=1'),
            ts_rank(ARRAY[0.1, 0.3, 0.6, 1.0]::real[], h.search_vector, tsq)

@@ -13,9 +13,16 @@ export interface Profile {
   last_active_at: string | null;
 }
 
-export interface Collection { id: number; slug: string; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; }
-export interface Book { id: number; collection_id: number; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; }
-export interface Chapter { id: number; book_id: number; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; }
+/**
+ * [FIX UI-07] `hadith_count` و`book_count` عمودان محفوظان في القاعدة
+ * (20-counts.sql). اختياريان في النوع لا إلزاميان، لسببين:
+ *   • بيانات الوضع الوهمي لا تحملهما، والعدّ فيها محلّي أصلاً.
+ *   • قاعدة لم يُشغَّل عليها 20-counts.sql بعد تُرجع صفوفاً بلا العمود؛
+ *     الواجهة يجب أن تتدهور بلطف لا أن تنهار.
+ */
+export interface Collection { id: number; slug: string; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; hadith_count?: number; book_count?: number; }
+export interface Book { id: number; collection_id: number; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; hadith_count?: number; }
+export interface Chapter { id: number; book_id: number; name_ar: string; name_id: string | null; name_en: string | null; sort_order: number; hadith_count?: number; }
 
 export interface WordDefinition { id: number; hadith_id: string; word: string; definition_ar: string; definition_id: string | null; definition_en: string | null; }
 export interface TakhrijReference { id: number; hadith_id: string; source_book: string; reference_number: string; }

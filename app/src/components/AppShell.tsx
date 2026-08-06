@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { IS_PLACEHOLDER_CONFIG, DATA_SOURCE } from "@/lib/config";
+import LangSwitcher from "./LangSwitcher";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { state, dispatch, me, isAdmin } = useStore();
@@ -59,6 +60,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               )}
             </nav>
+            {/* لغة المحتوى — مختصرة في الترويسة، وشرحها الكامل في «ملفي» */}
+            <div className="hidden sm:block"><LangSwitcher compact /></div>
           </div>
         </header>
       )}

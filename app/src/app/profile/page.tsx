@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { getRepo } from "@/lib/repo";
 import { Card, Button, EmptyState, Modal } from "@/components/ui";
+import LangSwitcher from "@/components/LangSwitcher";
 
 /** PAGE-006 / F007 — الملف الشخصي */
 export default function ProfilePage() {
@@ -52,6 +53,21 @@ export default function ProfilePage() {
           {me.consent_given_at
             ? <span className="font-medium text-primary">مُقرَّة ✓</span>
             : <span className="font-medium text-red-600">غير مُقرَّة — لا يمكنك الرفع</span>}
+        </div>
+      </Card>
+
+      {/* [F011] موضع المبدّل الأساسي على الهاتف — نسخة الترويسة مخفيّة دون 640px،
+          والهاتف هو الجهاز الأول لطلاب المقرَّر. الإخفاء بلا بديل يعني ميزةً
+          لا يعرف بها أحد. */}
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-semibold text-stone-800">لغة المحتوى</p>
+            <p className="mt-0.5 text-[13px] text-stone-500">
+              الترجمة المعروضة تحت متن الحديث وفي نتائج البحث. الواجهة تبقى عربية.
+            </p>
+          </div>
+          <LangSwitcher />
         </div>
       </Card>
 

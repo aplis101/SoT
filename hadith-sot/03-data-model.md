@@ -232,6 +232,15 @@ classDiagram
 | name_id | TEXT | NULL | الاسم الإندونيسي |
 | slug | TEXT | UNIQUE, NOT NULL | معرّف نصي صديق للمسارات |
 | sort_order | INT | NOT NULL, DEFAULT 0 | ترتيب العرض |
+| hadith_count | INT | NOT NULL, DEFAULT 0 | **مشتقّ** — مجموع أحاديث كتب المجموعة (`20-counts.sql`) |
+| book_count | INT | NOT NULL, DEFAULT 0 | **مشتقّ** — عدد كتب المجموعة |
+
+> **لماذا عمود مشتقّ في مخطط مُطبَّع؟** [FIX UI-07] بعد [FIX PERF-01] لم تعد
+> الواجهة تجلب الأحاديث عند الإقلاع (67MB لكل زيارة)، فصار عدّها في المتصفح
+> مستحيلاً. البديل الوحيد جلب ٣٥ ألف صفّ لعرض رقم واحد. الأعمدة تُحدَّث
+> بمشغّلات على مستوى **الجملة** لا الصفّ، فاستيراد دفعة كاملة يعيد الحساب
+> مرةً واحدة. **لا تُكتب هذه الأعمدة يدوياً أبداً** — `SELECT recount_hadiths();`
+> هو الطريق الوحيد لإعادة ضبطها.
 
 ### 3.3 books
 
@@ -244,6 +253,7 @@ classDiagram
 | name_ar | TEXT | NOT NULL | الاسم العربي |
 | name_id | TEXT | NULL | الاسم الإندونيسي |
 | sort_order | INT | NOT NULL, DEFAULT 0 | ترتيب العرض |
+| hadith_count | INT | NOT NULL, DEFAULT 0 | **مشتقّ** — مجموع أحاديث أبواب الكتاب (`20-counts.sql`) |
 
 ### 3.4 chapters
 
@@ -256,6 +266,7 @@ classDiagram
 | name_ar | TEXT | NOT NULL | اسم الباب العربي |
 | name_id | TEXT | NULL | الاسم الإندونيسي |
 | sort_order | INT | NOT NULL, DEFAULT 0 | ترتيب العرض |
+| hadith_count | INT | NOT NULL, DEFAULT 0 | **مشتقّ** — عدد أحاديث الباب (`20-counts.sql`) |
 
 ### 3.5 hadiths
 

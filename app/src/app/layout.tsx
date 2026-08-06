@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { LangProvider } from "@/lib/i18n";
 import AppShell from "@/components/AppShell";
 import PWARegister from "@/components/PWARegister";
 import ReportProblemButton from "@/components/ReportProblemButton";
@@ -48,10 +49,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased">
         <StoreProvider>
-          <AppShell>{children}</AppShell>
-          <Diagnostics />
-          <ReportProblemButton />
-          <PWARegister />
+          {/* طبقة لغة المحتوى — الواجهة تبقى عربية RTL، والمتغيّر هو الترجمة المعروضة */}
+          <LangProvider>
+            <AppShell>{children}</AppShell>
+            <Diagnostics />
+            <ReportProblemButton />
+            <PWARegister />
+          </LangProvider>
         </StoreProvider>
       </body>
     </html>

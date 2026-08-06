@@ -37,10 +37,25 @@
 ### أ) Supabase
 
 1. supabase.com ← **New Project** (منطقة Southeast Asia أقرب لإندونيسيا)
-2. **SQL Editor** ← نفّذ بالترتيب:
-   - `hadith-sot/04-database-schema.sql`
-   - `hadith-sot/05-rls-policies.sql`
-   - `app/supabase/seed/01-collections.sql` ثم `02` … حتى `11`
+2. **SQL Editor** ← نفّذ بالترتيب. **الترتيب ملزم** — كل ملف يفترض ما قبله:
+
+   | # | الملف | ماذا يفعل |
+   |---|---|---|
+   | ١ | `hadith-sot/04-database-schema.sql` | الجداول والأنواع |
+   | ٢ | `hadith-sot/05-rls-policies.sql` | 30 سياسة RLS |
+   | ٣ | `hadith-sot/06-fixes.sql` | إصلاحات ما بعد النقد |
+   | ٤ | `hadith-sot/07-bug-reports.sql` | قناة بلاغات المنصة (F009) |
+   | ٥ | `hadith-sot/08-security-fixes.sql` | إصلاحات P0 الصامتة |
+   | ٦ | `app/supabase/seed/01-collections.sql` … حتى `11` | 35,798 حديثاً |
+   | ٧ | `hadith-sot/09-search.sql` | البحث النصّي (F010) — **بعد البذور** |
+   | ٨ | `hadith-sot/20-counts.sql` | عدّادات الأحاديث — **بعد البذور** |
+   | ٩ | `hadith-sot/21-rate-limits.sql` | تحديد معدل البلاغات |
+
+   > **لماذا ٧ و٨ بعد البذور؟** كلاهما يحسب على البيانات الموجودة: ٩ يبني
+   > فهرس البحث، و٢٠ يملأ العدّادات. تشغيلهما على قاعدة فارغة يمرّ بلا خطأ
+   > ويترك البحث بلا نتائج والعدّادات أصفاراً — فشلٌ صامت، وهو أسوأ أنواعه.
+   > إن شغّلتهما مبكراً فالعلاج سطر واحد: `SELECT recount_hadiths();`
+   > والفهرس يُعاد بناؤه بإعادة تشغيل `09-search.sql`.
 3. **Storage** ← أنشئ bucket باسم `recordings`، **خاص (Private)** لا عام — التطبيق يولّد روابط موقّعة صالحة ساعة.
 4. **Authentication ← Providers ← Google** ← فعّله وألصق Client ID و Secret.
 5. **Settings ← API** ← انسخ `Project URL` و `anon key` و `service_role key`.

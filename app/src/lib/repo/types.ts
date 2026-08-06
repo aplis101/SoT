@@ -126,7 +126,13 @@ export interface SearchResult {
   translationId: string | null;
   bookName: { ar: string; en: string | null; id: string | null };
   collectionName: { ar: string; en: string | null; id: string | null };
-  /** مقتطف فيه <mark> حول مواضع التطابق — نصّ مطبَّع بلا تشكيل */
+  /**
+   * @deprecated [FIX SRCH-01] لا تستعمله.
+   *
+   * مقتطف `ts_headline` — نصّ **مطبَّع بلا تشكيل**، ويغطّي `matn_ar` وحده.
+   * التظليل انتقل إلى `src/lib/highlight.ts` فوق `matnAr` و`translationId`
+   * و`translationEn` الأصلية. يبقى الحقل حتى تُحذف الدالة في v2.
+   */
   snippet: string;
   rank: number;
 }

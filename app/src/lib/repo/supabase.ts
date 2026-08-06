@@ -22,6 +22,33 @@ function db(): SupabaseClient {
   return _client;
 }
 
+/**
+ * [FIX SEC-09] خطأ حدّ المعدل — ليس عطلاً في المنصة.
+ *
+ * رسائل 21-rate-limits.sql مكتوبة بعربية مفهومة أصلاً وموجَّهة للمستخدم.
+ * تغليفها بـ«تعذّر إرسال البلاغ: …» يكرّر المعنى ويُغرق الإرشاد المفيد
+ * («سجّل دخولك ليصل بلاغك فوراً») في نصّ عطل. نمرّرها كما هي، ونميّز نوعها
+ * حتى تختار الواجهة نبرةً هادئة لا حمراء.
+ */
+export class RateLimitError extends Error {
+  constructor(message: string, readonly reason: string) {
+    super(message);
+    this.name = "RateLimitError";
+  }
+}
+
+/** أنواع الرفض التي تأتي من مشغّلات الحدّ — تُميَّز بـhint لا بنصّ الرسالة */
+const RATE_HINTS = new Set(["rate_limit_user", "rate_limit_anon", "duplicate_report"]);
+
+function throwSubmitError(
+  error: { message: string; hint?: string | null; code?: string | null },
+  fallback: string
+): never {
+  const hint = error.hint ?? "";
+  if (RATE_HINTS.has(hint)) throw new RateLimitError(error.message, hint);
+  throw new Error(`${fallback}: ${error.message}`);
+}
+
 /** يرمي خطأً مقروءاً بالعربية بدل كائن Supabase الخام */
 function check<T>(res: { data: T | null; error: { message: string } | null }, what: string): T {
   if (res.error) throw new Error(`${what}: ${res.error.message}`);
@@ -200,12 +227,12 @@ export const supabaseRepo: Repo = {
     const { error } = await db().from("reports").insert(r);
     if (error) {
       if (/duplicate key/i.test(error.message)) throw new Error("سبق أن أبلغت عن هذا التسجيل.");
-      throw new Error(`تعذّر إرسال البلاغ: ${error.message}`);
+      throwSubmitError(error, "تعذّر إرسال البلاغ");
     }
   },
   async submitContentReport(r) {
     const { error } = await db().from("content_reports").insert(r);
-    if (error) throw new Error(`تعذّر إرسال البلاغ: ${error.message}`);
+    if (error) throwSubmitError(error, "تعذّر إرسال البلاغ");
   },
   async resolveReport(id, status) {
     const uid = await this.getSessionUserId();
@@ -274,7 +301,7 @@ export const supabaseRepo: Repo = {
   // ---------------------------------------------------------------- بلاغات المنصة
   async submitBugReport(r: BugReportInput) {
     const { error } = await db().from("bug_reports").insert(r);
-    if (error) throw new Error(`تعذّر إرسال البلاغ: ${error.message}`);
+    if (error) throwSubmitError(error, "تعذّر إرسال البلاغ");
   },
   async loadBugReports() {
     const res = await db().from("bug_reports").select("*").order("created_at", { ascending: false }).limit(500);

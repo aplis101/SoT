@@ -16,6 +16,31 @@ import {
 
 const noop = async () => {};
 
+/**
+ * [FIX SEC-09] محاكاة حدّ المعدل في الوضع الوهمي.
+ *
+ * الحدّ الحقيقي مشغّل في القاعدة (21-rate-limits.sql) — وهو الحارس. لكن لو
+ * تركنا الوضع الوهمي بلا حدّ لاختبرنا مساراً لا وجود له في الإنتاج، ولاكتشفنا
+ * رسالة الرفض أول مرة على الموقع الحيّ. المحاكاة تُبقي الوضعين متطابقين، وهو
+ * عرف الملف نفسه (انظر البحث الوهمي أدناه).
+ */
+const RATE = { perHour: 10, dupWindowMs: 5 * 60_000 };
+const sent: { at: number; message: string }[] = [];
+
+function mockRateGuard(message: string): void {
+  const now = Date.now();
+  while (sent.length && now - sent[0].at > 3_600_000) sent.shift();
+  if (sent.some((s) => s.message === message && now - s.at < RATE.dupWindowMs)) {
+    throw new Error("هذا البلاغ وصل قبل قليل — لا حاجة لإرساله مرةً أخرى.");
+  }
+  if (sent.length >= RATE.perHour) {
+    throw new Error(
+      `وصلت الحدّ الأقصى للبلاغات (${RATE.perHour} في الساعة). بلاغاتك السابقة وصلت ولم تضع — انتظر قليلاً ثم أرسل البقية.`
+    );
+  }
+  sent.push({ at: now, message });
+}
+
 export const mockRepo: Repo = {
   kind: "mock",
 
@@ -107,7 +132,7 @@ export const mockRepo: Repo = {
   renameBook: noop,
 
   // في الوضع الوهمي نطبع البلاغ في الطرفية بدل إرساله — ليبقى النموذج قابلاً للتجربة
-  async submitBugReport(r) { console.info("[mock] bug report:", r); },
+  async submitBugReport(r) { mockRateGuard(r.message); console.info("[mock] bug report:", r); },
   async loadBugReports(): Promise<BugReport[]> { return []; },
   updateBugReport: noop,
 
