@@ -6,7 +6,7 @@
  */
 import type {
   Collection, Book, Chapter, Hadith, WordDefinition, TakhrijReference, BugReport, BugReportInput,
-  Recording, Report, ContentReport, AppSettings, Profile,
+  Recording, Report, ContentReport, AppSettings, Profile, AdminDecision, AdminUser, UserRole,
 } from "../types";
 
 /** المحتوى المرجعي — للقراءة فقط من الواجهة (يُستورد بدور الخدمة) */
@@ -105,6 +105,30 @@ export interface Repo {
    * فمن يكتب «انما الاعمال» يجد «إنَّمَا الأَعْمَالُ». تفصيله في 09-search.sql.
    */
   searchHadiths(query: string, opts?: SearchOptions): Promise<SearchResult[]>;
+
+  // ---- الموافقة على النشر (F004 / UU PDP) ----
+  /**
+   * [FIX CONSENT-01] لم يكن في التطبيق أي مسار يكتب `consent_given_at`.
+   *
+   * `RecorderModal` يمنع الرفع بدونها، وصفحة «ملفي» تعرض حالتها — ولا موضع
+   * يضعها. النتيجة: **الرفع الصوتي كان معطَّلاً لكل مستخدم بلا استثناء**،
+   * أي أن الميزة الأساسية للمنصة (F004) لم تكن قابلة للاستعمال أصلاً.
+   * ولم يظهر ذلك في بناء ولا فحص أنواع — الشرط صحيح والحقل فارغ فعلاً.
+   *
+   * `null` تعني السحب: المستخدم يملك أن يرجع في إذنه متى شاء، وهذا حقّ
+   * أصيل في UU PDP لا تفضّلٌ منّا.
+   */
+  setConsent(given: boolean): Promise<string | null>;
+
+  // ---- الحوكمة (F012 — 22-governance.sql) ----
+  /** قائمة المستخدمين للمشرف؛ البريد يظهر للمدير الأعلى وحده */
+  listUsers(): Promise<AdminUser[]>;
+  /** منح رتبة أو نزعها — للمدير الأعلى وحده، ولا تشمل `superadmin` */
+  setUserRole(userId: string, role: Exclude<UserRole, "superadmin">): Promise<void>;
+
+  loadDecisions(): Promise<AdminDecision[]>;
+  upsertDecision(d: Partial<AdminDecision> & { title: string }): Promise<AdminDecision>;
+  deleteDecision(id: number): Promise<void>;
 }
 
 export interface SearchOptions {

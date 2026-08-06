@@ -10,12 +10,14 @@ const LINKS = [
   { href: "/admin/content-reports", label: "بلاغات المحتوى" },
   { href: "/admin/content", label: "إدخال المحتوى" },
   { href: "/admin/bugs", label: "بلاغات المنصة" },
+  { href: "/admin/decisions", label: "القرارات" },
+  { href: "/admin/users", label: "المستخدمون" },
   { href: "/admin/settings", label: "الإعدادات" },
 ];
 
 /** PAGE-007 — حارس الصلاحية على مستوى المسار (يقابل فحص is_admin() الخادمي) */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAdmin, me } = useStore();
+  const { isAdmin, isSuperadmin, me } = useStore();
   const pathname = usePathname();
   if (!me) return null;
   if (!isAdmin) {
@@ -23,7 +25,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-stone-900">لوحة تحكم المشرف</h1>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="text-xl font-bold text-stone-900">
+          {isSuperadmin ? "لوحة المدير الأعلى" : "لوحة تحكم المشرف"}
+        </h1>
+        {isSuperadmin && (
+          <span className="rounded-lg bg-primary px-2 py-0.5 text-[11px] font-semibold text-white">
+            صلاحيات كاملة
+          </span>
+        )}
+      </div>
       <nav className="flex gap-1 overflow-x-auto rounded-xl bg-stone-100 p-1">
         {LINKS.map((l) => (
           <Link key={l.href} href={l.href}

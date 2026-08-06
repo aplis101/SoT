@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const { state, dispatch, me, isAdmin } = useStore();
   const MOCK_HADITHS = state.hadiths;
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [consentBusy, setConsentBusy] = useState(false);
   if (!me) return null;
 
   const mine = state.recordings.filter((r) => r.user_id === me.id);
@@ -48,11 +49,40 @@ export default function ProfilePage() {
           ))}
         </dl>
 
-        <div className="mt-4 rounded-xl border border-stone-200 px-3 py-2.5 text-[13px]">
-          <span className="text-stone-600">الموافقة على النشر: </span>
-          {me.consent_given_at
-            ? <span className="font-medium text-primary">مُقرَّة ✓</span>
-            : <span className="font-medium text-red-600">غير مُقرَّة — لا يمكنك الرفع</span>}
+        {/* [FIX CONSENT-01] كان هذا عرضاً بلا فعل: يخبرك أنك ممنوع ولا يعطيك
+            سبيلاً. الإذن الذي لا يُسحب ليس إذناً، والمنع الذي لا يُرفع عطل. */}
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-stone-200 px-3 py-2.5 text-[13px]">
+          <div className="flex-1">
+            <span className="text-stone-600">إذن نشر صوتي: </span>
+            {me.consent_given_at
+              ? <span className="font-medium text-primary">مُقرّ ✓</span>
+              : <span className="font-medium text-amber-700">غير مُقرّ — الرفع متوقّف</span>}
+            <p className="mt-0.5 text-[11px] text-stone-500">
+              {me.consent_given_at
+                ? "سحبه يوقف رفعك الجديد، وتسجيلاتك السابقة تبقى حتى تحذفها بنفسك."
+                : "يُطلب منك عند أول محاولة تسجيل، أو أقرّه من هنا."}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant={me.consent_given_at ? "outline" : "primary"}
+            disabled={consentBusy}
+            onClick={async () => {
+              const giving = !me.consent_given_at;
+              setConsentBusy(true);
+              try {
+                const at = await getRepo().setConsent(giving);
+                dispatch({ type: "SET_CONSENT", at });
+                dispatch({ type: "TOAST", text: giving ? "أُقرّ الإذن — يمكنك التسجيل الآن." : "سُحب الإذن. الرفع متوقّف." });
+              } catch (e) {
+                dispatch({ type: "TOAST", kind: "err", text: e instanceof Error ? e.message : "تعذّر الحفظ." });
+              } finally {
+                setConsentBusy(false);
+              }
+            }}
+          >
+            {consentBusy ? "…" : me.consent_given_at ? "اسحب الإذن" : "أقرّ الإذن"}
+          </Button>
         </div>
       </Card>
 

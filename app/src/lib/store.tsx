@@ -75,6 +75,7 @@ type Action =
   | { type: "TOGGLE_LIKE"; recordingId: string }
   | { type: "TOGGLE_FAVORITE"; recordingId: string }
   | { type: "COUNT_LISTEN"; recordingId: string }
+  | { type: "SET_CONSENT"; at: string | null }
   | { type: "ADD_RECORDING"; recording: Recording }
   | { type: "DELETE_RECORDING"; recordingId: string }
   | { type: "SUBMIT_REPORT"; report: Report }
@@ -191,6 +192,15 @@ function reducer(state: AppState, action: Action): AppState {
         ),
       };
 
+    // [FIX CONSENT-01] إقرار الموافقة أو سحبها — انظر repo/types.ts §setConsent
+    case "SET_CONSENT":
+      return {
+        ...state,
+        profiles: state.profiles.map((p) =>
+          p.id === state.sessionUserId ? { ...p, consent_given_at: action.at } : p
+        ),
+      };
+
     case "ADD_RECORDING": {
       // ALG-004: تسجيل واحد لكل طالب لكل حديث — الاستبدال يزيل القديم
       const filtered = state.recordings.filter(
@@ -264,7 +274,10 @@ const Ctx = createContext<{
   state: AppState;
   dispatch: React.Dispatch<Action>;
   me: Profile | null;
+  /** مشرف أو مدير أعلى — يقابل `is_admin()` في القاعدة تماماً */
   isAdmin: boolean;
+  /** مدير أعلى وحده — يقابل `is_superadmin()` */
+  isSuperadmin: boolean;
   viewsFor: (hadithId: string) => RecordingView[];
   activeUsersCount: number;
 } | null>(null);
@@ -328,7 +341,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(() => {
     const me = state.profiles.find((p) => p.id === state.sessionUserId) ?? null;
-    const isAdmin = me?.role === "admin";
+    // [F012] المدير الأعلى يرث كل صلاحيات المشرف — كما توسّعت `is_admin()` في
+    // القاعدة. لو اختلف الطرفان لرأى المستخدم زرّاً ترفضه القاعدة، وهو أسوأ
+    // من عدم رؤيته: يبدو عطلاً وهو سياسة.
+    const isSuperadmin = me?.role === "superadmin";
+    const isAdmin = me?.role === "admin" || isSuperadmin;
     const activeUsersCount = state.profiles.filter((p) => {
       if (!p.last_active_at) return false;
       return (Date.now() - new Date(p.last_active_at).getTime()) / 86400_000 <= state.settings.active_users_window_days;
@@ -347,7 +364,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           is_community_best: isCommunityBest(r, state.settings.community_best_min_likes),
         }));
 
-    return { state, dispatch, me, isAdmin, viewsFor, activeUsersCount };
+    return { state, dispatch, me, isAdmin, isSuperadmin, viewsFor, activeUsersCount };
   }, [state]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

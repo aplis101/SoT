@@ -7,7 +7,7 @@
  * ويستدعي الطبقة الحقيقية بعد كل تغيير.
  */
 import type { Repo, ContentSnapshot, InteractionSnapshot, SearchResult } from "./types";
-import type { Recording, WordDefinition, TakhrijReference, BugReport } from "../types";
+import type { Recording, WordDefinition, TakhrijReference, BugReport, AdminDecision } from "../types";
 import {
   MOCK_COLLECTIONS, MOCK_BOOKS, MOCK_CHAPTERS, MOCK_HADITHS,
   MOCK_WORD_DEFINITIONS, MOCK_TAKHRIJ, MOCK_PROFILES, MOCK_RECORDINGS,
@@ -180,4 +180,68 @@ export const mockRepo: Repo = {
     const off = opts.offset ?? 0;
     return out.slice(off, off + (opts.limit ?? 30));
   },
+
+  // ------------------------------------------------------- الموافقة والحوكمة
+  // الحالة الحقيقية يحفظها المخزن محلياً؛ هذه الطبقة تعيد ما كان سيُكتب.
+  async setConsent(given) {
+    return given ? new Date().toISOString() : null;
+  },
+
+  async listUsers() {
+    return MOCK_PROFILES.map((p) => ({
+      id: p.id,
+      display_name: p.display_name,
+      // البريد لا يُحاكى: الوضع الوهمي لا يحمل بيانات شخصية ولو مخترعة
+      email: null,
+      role: p.role,
+      consent_ok: p.consent_given_at !== null,
+      last_active_at: p.last_active_at,
+      recordings: MOCK_RECORDINGS.filter((r) => r.user_id === p.id).length,
+    }));
+  },
+
+  async setUserRole() {
+    throw new Error("منح الرتب متاح في الوضع الحيّ فقط — يحرسه مشغّل في القاعدة.");
+  },
+
+  async loadDecisions() { return [...mockDecisions]; },
+
+  async upsertDecision(d) {
+    const now = new Date().toISOString();
+    if (d.id) {
+      const i = mockDecisions.findIndex((x) => x.id === d.id);
+      if (i >= 0) mockDecisions[i] = { ...mockDecisions[i], ...d, updated_at: now } as AdminDecision;
+      return mockDecisions[i];
+    }
+    const row: AdminDecision = {
+      id: Math.max(0, ...mockDecisions.map((x) => x.id)) + 1,
+      title: d.title, note: d.note ?? null,
+      priority: d.priority ?? "normal", status: d.status ?? "open",
+      due_on: d.due_on ?? null, source: d.source ?? null,
+      resolved_at: null, created_at: now, updated_at: now,
+    };
+    mockDecisions.push(row);
+    return row;
+  },
+
+  async deleteDecision(id) {
+    const i = mockDecisions.findIndex((x) => x.id === id);
+    if (i >= 0) mockDecisions.splice(i, 1);
+  },
 };
+
+/** بنود وهمية — تعكس بنية 22-governance.sql لا محتواه الحقيقي */
+const mockDecisions: AdminDecision[] = [
+  {
+    id: 1, title: "مصير التسجيلات آخر الفصل الدراسي",
+    note: "حذف؟ أرشفة؟ القرار يمسّ بيانات شخصية ويجب أن يُعلَن قبل الجمع لا بعده.",
+    priority: "high", status: "open", due_on: null, source: "PRIVACY §4",
+    resolved_at: null, created_at: "2026-08-06T00:00:00Z", updated_at: "2026-08-06T00:00:00Z",
+  },
+  {
+    id: 2, title: "تدقيق الترجمة الإندونيسية قبل الفتح للعموم",
+    note: "المترجم مجهول في المصدر. مقبول بين زملاء، غير مقبول لمنصة عامة.",
+    priority: "high", status: "open", due_on: null, source: "T-02",
+    resolved_at: null, created_at: "2026-08-06T00:00:00Z", updated_at: "2026-08-06T00:00:00Z",
+  },
+];

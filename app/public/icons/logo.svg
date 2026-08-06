@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"
+     role="img" aria-label="منصة الحديث الشريف">
+  <title>منصة الحديث الشريف</title>
+  <desc>
+    هلال تخرج من فتحته موجات صوت. الهلال يدلّ على المصدر الشرعي، والموجات على
+    ما تفعله المنصة فعلاً: النطق والاستماع لا القراءة وحدها. اجتماعهما يقول
+    الشيء الذي لا يقوله الهلال وحده — وهو لماذا وُجدت المنصة أصلاً.
+    المصدر المرجعي للأيقونات كلها: scripts/make-icons.py.
+  </desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#108A64"/>
+      <stop offset="1" stop-color="#065F46"/>
+    </linearGradient>
+
+    <!-- الهلال = دائرة ناقص دائرة مزاحة. الإزاحة نحو أعلى اليمين تفتح الفم
+         باتجاه الموجات، فيُقرأ الشكل صوتاً خارجاً لا قمراً ساكناً. -->
+    <mask id="crescent">
+      <circle cx="196" cy="256" r="140" fill="#fff"/>
+      <circle cx="250" cy="240" r="130" fill="#000"/>
+    </mask>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <rect width="512" height="512" fill="#ECFDF5" mask="url(#crescent)"/>
+
+  <!-- ثلاث موجات متناقصة الوضوح — الأبعد أخفت، كالصوت حين يبتعد -->
+  <g fill="none" stroke="#6EE7B7" stroke-linecap="round">
+    <path d="M361.6 187.6 A92 92 0 0 1 361.6 324.4"   stroke-width="20" opacity="0.92"/>
+    <path d="M388.3 157.9 A132 132 0 0 1 388.3 354.1" stroke-width="17" opacity="0.69"/>
+    <path d="M415.1 128.2 A172 172 0 0 1 415.1 383.8" stroke-width="14" opacity="0.45"/>
+  </g>
+</svg>

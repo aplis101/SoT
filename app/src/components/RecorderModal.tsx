@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Modal, Button } from "./ui";
+import ConsentGate from "./ConsentGate";
 import { useStore } from "@/lib/store";
 import { checkRateLimit } from "@/lib/algorithms";
 import type { Recording } from "@/lib/types";
@@ -19,6 +20,7 @@ export default function RecorderModal({ open, onClose, hadithId }: { open: boole
   const chunks = useRef<Blob[]>([]);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const needsConsent = !!me && !me.consent_given_at;
   const existing = state.recordings.find((r) => r.hadith_id === hadithId && r.user_id === me?.id);
   const rate = checkRateLimit(state.uploadTimestamps, state.settings.rate_limit_uploads_per_hour);
 
@@ -33,6 +35,8 @@ export default function RecorderModal({ open, onClose, hadithId }: { open: boole
     setError(null);
     if (!state.settings.upload_enabled) { setError("الرفع موقوف حالياً بقرار من المشرف."); return; }
     if (!rate.allowed) { setError(`تجاوزت حد الرفع (${state.settings.rate_limit_uploads_per_hour} في الساعة). أعد المحاولة بعد ${rate.retryAfterMinutes} دقيقة.`); return; }
+    // [FIX CONSENT-01] الموافقة لم تعد رسالة منع بلا مخرج — البطاقة تُعرض
+    // قبل الوصول إلى هنا. هذا الشرط باقٍ حارساً لو استُدعيت الدالة بغير مسارها.
     if (!me?.consent_given_at) { setError("يلزم إقرار الموافقة على نشر التسجيل قبل الرفع."); return; }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -92,7 +96,9 @@ export default function RecorderModal({ open, onClose, hadithId }: { open: boole
   const ss = String(seconds % 60).padStart(2, "0");
 
   return (
-    <Modal open={open} onClose={() => { reset(); onClose(); }} title="تسجيل صوتي جديد">
+    <Modal open={open} onClose={() => { reset(); onClose(); }} title={needsConsent ? "إذن النشر" : "تسجيل صوتي جديد"}>
+      {/* [FIX CONSENT-01] البوابة أولاً: لا معنى لعرض زرّ تسجيل يرفض العمل */}
+      {needsConsent ? <ConsentGate /> : <>
       {existing && phase === "idle" && (
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900">
           لديك تسجيل سابق لهذا الحديث. الرفع الجديد <b>سيستبدله</b>، وستُفقد إعجاباته ونجومه (ALG-004).
@@ -131,6 +137,7 @@ export default function RecorderModal({ open, onClose, hadithId }: { open: boole
           <p className="text-[11px] text-stone-400">متبقٍ لك <span className="nums">{rate.remaining}</span> عمليات رفع هذه الساعة</p>
         )}
       </div>
+      </>}
     </Modal>
   );
 }

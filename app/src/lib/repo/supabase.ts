@@ -361,4 +361,50 @@ export const supabaseRepo: Repo = {
       rank: r.rank,
     }));
   },
+
+  // ------------------------------------------------------- الموافقة على النشر
+  // [FIX CONSENT-01] سياسة `profiles_update_own` تسمح بهذا أصلاً (تحديث ذاتي
+  // بشرط ألّا تتغيّر الرتبة) — لم تكن تنقص سياسةٌ بل استدعاء.
+  async setConsent(given) {
+    const uid = await this.getSessionUserId();
+    if (!uid) throw new Error("سجّل دخولك أولاً.");
+    const at = given ? new Date().toISOString() : null;
+    const { error } = await db().from("profiles").update({ consent_given_at: at }).eq("id", uid);
+    if (error) throw new Error(`تعذّر حفظ الموافقة: ${error.message}`);
+    return at;
+  },
+
+  // ------------------------------------------------------------------ الحوكمة
+  async listUsers() {
+    const { data, error } = await db().rpc("admin_list_users");
+    if (error) throw new Error(`قراءة المستخدمين: ${error.message}`);
+    return (data ?? []) as Awaited<ReturnType<Repo["listUsers"]>>;
+  },
+
+  async setUserRole(userId, role) {
+    const { error } = await db().rpc("set_user_role", { p_user_id: userId, p_role: role });
+    // رسائل 22-governance.sql عربية موجَّهة للمستخدم — تُمرَّر كما هي
+    if (error) throw new Error(error.message);
+  },
+
+  async loadDecisions() {
+    const { data, error } = await db().from("admin_decisions").select("*")
+      .order("status").order("priority").order("due_on", { nullsFirst: false }).order("id");
+    if (error) throw new Error(`قراءة القرارات: ${error.message}`);
+    return (data ?? []) as Awaited<ReturnType<Repo["loadDecisions"]>>;
+  },
+
+  async upsertDecision(d) {
+    const q = d.id
+      ? db().from("admin_decisions").update(d).eq("id", d.id).select().single()
+      : db().from("admin_decisions").insert(d).select().single();
+    const { data, error } = await q;
+    if (error) throw new Error(`حفظ البند: ${error.message}`);
+    return data as Awaited<ReturnType<Repo["upsertDecision"]>>;
+  },
+
+  async deleteDecision(id) {
+    const { error } = await db().from("admin_decisions").delete().eq("id", id);
+    if (error) throw new Error(`حذف البند: ${error.message}`);
+  },
 };

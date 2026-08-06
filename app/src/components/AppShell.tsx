@@ -39,8 +39,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {!onLogin && me && (
         <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/90 backdrop-blur">
           <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-            <Link href="/" className="flex items-center gap-2 font-bold text-primary">
-              <span aria-hidden className="text-lg">☾</span>
+            {/* العلامة نفسها في الترويسة وعلى شاشة الهاتف — الرمز ☾ كان يختلف
+                شكله بين الأجهزة لأنه محرف لا رسم. SVG واحد يضمن أن ما يراه
+                الطالب في المتصفح هو ما يراه على أيقونة التطبيق. */}
+            <Link href="/" className="flex items-center gap-2 font-bold text-primary" aria-label="منصة الحديث — الرئيسية">
+              <svg viewBox="0 0 512 512" className="h-7 w-7" aria-hidden>
+                <mask id="hdr-crescent">
+                  <circle cx="196" cy="256" r="140" fill="#fff" />
+                  <circle cx="250" cy="240" r="130" fill="#000" />
+                </mask>
+                <rect width="512" height="512" rx="96" fill="currentColor" />
+                <rect width="512" height="512" fill="#ECFDF5" mask="url(#hdr-crescent)" />
+                <g fill="none" stroke="#6EE7B7" strokeLinecap="round">
+                  <path d="M361.6 187.6 A92 92 0 0 1 361.6 324.4" strokeWidth="20" opacity="0.92" />
+                  <path d="M388.3 157.9 A132 132 0 0 1 388.3 354.1" strokeWidth="17" opacity="0.69" />
+                  <path d="M415.1 128.2 A172 172 0 0 1 415.1 383.8" strokeWidth="14" opacity="0.45" />
+                </g>
+              </svg>
               <span className="text-[15px]">منصة الحديث</span>
             </Link>
             <nav className="mr-auto flex items-center gap-1 text-sm">

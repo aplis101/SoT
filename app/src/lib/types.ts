@@ -1,5 +1,42 @@
 // أنواع البيانات — مشتقة من hadith-sot/04-database-schema.sql
-export type UserRole = "student" | "admin";
+/**
+ * [F012] ثلاث رتب لا رتبتان — 22-governance.sql
+ *
+ *   student     يقرأ ويسجّل ويبلّغ.
+ *   admin       + يعتمد التسجيلات ويعالج البلاغات ويفتح الرفع ويغلقه.
+ *   superadmin  + يمنح رتبة المشرف وينزعها، ويحرّر لوحة القرارات.
+ *
+ * `superadmin` **لا تُمنح من الواجهة أبداً** — من قاعدة البيانات وحدها. أخطر
+ * ثغرة في أي نظام رتب مسارٌ يرقّي به أحدٌ نفسه؛ وإبقاء أعلى رتبة خارج التطبيق
+ * كلياً يقطع السلسلة من أصلها.
+ */
+export type UserRole = "student" | "admin" | "superadmin";
+
+/** بند في لوحة القرارات — 22-governance.sql */
+export interface AdminDecision {
+  id: number;
+  title: string;
+  note: string | null;
+  priority: "high" | "normal" | "low";
+  status: "open" | "done" | "dropped";
+  due_on: string | null;
+  source: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** صفّ في صفحة إدارة المستخدمين — مخرجات admin_list_users() */
+export interface AdminUser {
+  id: string;
+  display_name: string;
+  /** يُكشف للمدير الأعلى وحده؛ null لغيره */
+  email: string | null;
+  role: UserRole;
+  consent_ok: boolean;
+  last_active_at: string | null;
+  recordings: number;
+}
 export type HadithGrade = "sahih" | "hasan" | "daif";
 export type ReportReason = "incorrect_recitation" | "poor_quality" | "inappropriate" | "other";
 export type ReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
